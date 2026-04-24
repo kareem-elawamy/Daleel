@@ -1,0 +1,272 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating>.form-control-plaintext::placeholder,
+.form-floating>.form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating>.form-control-plaintext:focus::placeholder,
+.form-floating>.form-control:focus::placeholder {
+  text-align: start;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── Brand Gradient Badge ── */
+.brand-gradient {
+  background: linear-gradient(135deg, #EF4123 0%, #F9A01B 100%);
+}
+
+/* ── AI Border Accent (RTL-aware) ── */
+.ai-border {
+  border-inline-start: 2px solid;
+  border-image: linear-gradient(to bottom, #EF4123, #F9A01B) 1;
+}
+
+.light .ai-border {
+  background-color: rgba(249, 160, 27, 0.02);
+}
+
+.dark .ai-border {
+  background-color: rgba(0, 178, 236, 0.03);
+}
+
+/* ── Soft Elevation (Light) ── */
+.soft-elevation {
+  box-shadow: 0px 10px 30px rgba(29, 49, 102, 0.04);
+}
+
+.dark .soft-elevation {
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Pulsing Status Dot ── */
+@keyframes status-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(0, 178, 236, 0.5);
+  }
+
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 6px rgba(0, 178, 236, 0);
+  }
+}
+
+.status-pulse {
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+/* ── Magnetic Hover Scale ── */
+.magnetic-hover {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.magnetic-hover:hover {
+  transform: scale(1.04);
+}
+
+.magnetic-hover:active {
+  transform: scale(0.97);
+}
+
+/* ── Smooth Glass Shimmer (optional ambient) ── */
+@keyframes glass-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ── Gradient border glow for trust badge in dark mode ── */
+.dark .trust-glow {
+  box-shadow: 0 0 12px rgba(239, 65, 35, 0.2), 0 0 24px rgba(249, 160, 27, 0.1);
+}
+
+/* ── Text Gradient (Scrollytelling Hero) ── */
+.text-gradient {
+  background: linear-gradient(135deg, #00B2EC 0%, #F9A01B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-red {
+  background: linear-gradient(135deg, #EF4123 0%, #F9A01B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glass Card (Scrollytelling Icon Box) ── */
+/* Dark mode: classic frosted glass on navy */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Light mode: subtle slate tint so the card reads on white */
+:where(html:not(.dark)) .glass-card {
+  background: rgba(29, 49, 102, 0.04);
+  border: 1px solid rgba(29, 49, 102, 0.10);
+  box-shadow: 0 4px 16px rgba(29, 49, 102, 0.08);
+}
+
+/* ── RTL Font Override ── */
+[dir="rtl"] body,
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] p,
+[dir="rtl"] span,
+[dir="rtl"] a,
+[dir="rtl"] button,
+[dir="rtl"] input,
+[dir="rtl"] label {
+  font-family: 'Cairo', 'Inter', sans-serif;
+}
+
+/* ── RTL Material Icons Fix (prevent icon mirroring) ── */
+[dir="rtl"] .material-symbols-outlined {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLL-REVEAL ANIMATION SYSTEM
+   Elements start hidden, then animate in when
+   the .is-visible class is added by the
+   Intersection Observer in index.html.
+   ═══════════════════════════════════════════ */
+
+/* Base: all animated elements start invisible */
+[data-animate] {
+  opacity: 0;
+  will-change: opacity, transform;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Visible state (triggered by Observer) */
+[data-animate].is-visible {
+  opacity: 1;
+  transform: none !important;
+}
+
+/* ── Animation Types ── */
+[data-animate="fade-up"] {
+  transform: translateY(40px);
+}
+
+[data-animate="fade-in"] {
+  transform: none;
+}
+
+[data-animate="slide-start"] {
+  transform: translateX(-50px);
+}
+
+[dir="rtl"] [data-animate="slide-start"] {
+  transform: translateX(50px);
+}
+
+[data-animate="slide-end"] {
+  transform: translateX(50px);
+}
+
+[dir="rtl"] [data-animate="slide-end"] {
+  transform: translateX(-50px);
+}
+
+[data-animate="scale-in"] {
+  transform: scale(0.85);
+}
+
+[data-animate="zoom-rotate"] {
+  transform: scale(0.8) rotate(-3deg);
+}
+
+/* ── Stagger Delays ── */
+[data-delay="1"] {
+  transition-delay: 0.1s;
+}
+
+[data-delay="2"] {
+  transition-delay: 0.2s;
+}
+
+[data-delay="3"] {
+  transition-delay: 0.3s;
+}
+
+[data-delay="4"] {
+  transition-delay: 0.4s;
+}
+
+[data-delay="5"] {
+  transition-delay: 0.5s;
+}
+
+[data-delay="6"] {
+  transition-delay: 0.6s;
+}
+
+[data-delay="7"] {
+  transition-delay: 0.7s;
+}
+
+[data-delay="8"] {
+  transition-delay: 0.8s;
+}
+
+/* ── Dark mode global transitions ── */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow;
+  transition-duration: 300ms;
+
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.grid div {
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+}

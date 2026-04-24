@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Partners";
+}
+
+<section class="relative py-32 overflow-hidden transition-colors duration-300">
+    <!-- Ambient Background Glows -->
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-[100%] bg-[#00B2EC]/10 blur-[100px] dark:bg-[#00B2EC]/5"></div>
+    </div>
+
+    <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8">
+
+        <!-- Page Header -->
+        <div class="text-center max-w-3xl mx-auto mb-20" data-animate="fade-up">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-navy/5 dark:bg-white/5 text-slate-900 dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-6">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">handshake</span>
+                Global Network
+            </div>
+            <h1 class="font-['Poppins'] text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 dark:text-white leading-tight mb-6">
+                Our Trusted <span class="text-gradient">Partners</span>
+            </h1>
+            <p class="font-['Inter'] text-lg sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                Daleel collaborates with the world's leading intelligence agencies, financial institutions, and technology providers to deliver unparalleled strategic advantages.
+            </p>
+        </div>
+
+        <!-- Partners Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-24">
+            <div class="glass-card flex items-center justify-center p-8 rounded-2xl grayscale hover:grayscale-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default" data-animate="fade-up" data-delay="1">
+                <h3 class="font-['Poppins'] text-xl font-bold text-slate-900 dark:text-white">AlphaData</h3>
+            </div>
+            <div class="glass-card flex items-center justify-center p-8 rounded-2xl grayscale hover:grayscale-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default" data-animate="fade-up" data-delay="2">
+                <h3 class="font-['Poppins'] text-xl font-bold text-slate-900 dark:text-white">TradeCorp</h3>
+            </div>
+            <div class="glass-card flex items-center justify-center p-8 rounded-2xl grayscale hover:grayscale-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default" data-animate="fade-up" data-delay="3">
+                <h3 class="font-['Poppins'] text-xl font-bold text-slate-900 dark:text-white">GeoAnalytics</h3>
+            </div>
+            <div class="glass-card flex items-center justify-center p-8 rounded-2xl grayscale hover:grayscale-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default" data-animate="fade-up" data-delay="4">
+                <h3 class="font-['Poppins'] text-xl font-bold text-slate-900 dark:text-white">SecureCloud</h3>
+            </div>
+            <div class="glass-card flex items-center justify-center p-8 rounded-2xl grayscale hover:grayscale-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default" data-animate="fade-up" data-delay="5">
+                <h3 class="font-['Poppins'] text-xl font-bold text-slate-900 dark:text-white">NexusAI</h3>
+            </div>
+            <div class="glass-card flex items-center justify-center p-8 rounded-2xl grayscale hover:grayscale-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default" data-animate="fade-up" data-delay="6">
+                <h3 class="font-['Poppins'] text-xl font-bold text-slate-900 dark:text-white">GlobalLink</h3>
+            </div>
+            <div class="glass-card flex items-center justify-center p-8 rounded-2xl grayscale hover:grayscale-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default" data-animate="fade-up" data-delay="7">
+                <h3 class="font-['Poppins'] text-xl font-bold text-slate-900 dark:text-white">VertexData</h3>
+            </div>
+            <div class="glass-card flex items-center justify-center p-8 rounded-2xl grayscale hover:grayscale-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default" data-animate="fade-up" data-delay="8">
+                <h3 class="font-['Poppins'] text-xl font-bold text-slate-900 dark:text-white">Omicron</h3>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="text-center" data-animate="fade-up" data-delay="9">
+            <p class="font-['Inter'] text-slate-500 dark:text-slate-400 text-sm mb-6">Become a part of our intelligence ecosystem.</p>
+            <a asp-controller="Home" asp-action="Contact"
+                class="inline-flex items-center gap-2 bg-[#00B2EC] text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base shadow-lg shadow-[#00B2EC]/20 hover:shadow-xl hover:shadow-[#00B2EC]/30 active:scale-95 transition-all duration-300">
+                Become a Partner
+                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+            </a>
+        </div>
+
+    </div>
+</section>

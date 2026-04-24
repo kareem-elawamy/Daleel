@@ -1,0 +1,102 @@
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<section class="relative py-32 overflow-hidden transition-colors duration-300">
+    <!-- Ambient Background Glows -->
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute top-10 left-10 w-[600px] h-[600px] rounded-[100%] bg-[#F9A01B]/10 blur-[120px] dark:bg-[#F9A01B]/5"></div>
+    </div>
+
+    <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8">
+
+        <!-- Page Header -->
+        <div class="text-center max-w-3xl mx-auto mb-20" data-animate="fade-up">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-navy/5 dark:bg-white/5 text-slate-900 dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-6">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">mail</span>
+                Get in Touch
+            </div>
+            <h1 class="font-['Poppins'] text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 dark:text-white leading-tight mb-6">
+                Contact <span class="text-gradient">Daleel</span>
+            </h1>
+            <p class="font-['Inter'] text-lg sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                Ready to elevate your intelligence capabilities? Our global team is available 24/7 to discuss your strategic needs.
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 max-w-6xl mx-auto">
+
+            <!-- Contact Info -->
+            <div class="space-y-8" data-animate="fade-up" data-delay="1">
+                <h2 class="font-['Poppins'] text-3xl font-bold text-slate-900 dark:text-white mb-8">Reach Out Directly</h2>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-[#00B2EC]/10 flex items-center justify-center shrink-0 mt-1">
+                        <span class="material-symbols-outlined text-[#00B2EC]">location_on</span>
+                    </div>
+                    <div>
+                        <h3 class="font-['Inter'] font-semibold text-slate-900 dark:text-white text-lg">Global Headquarters</h3>
+                        <p class="font-['Inter'] text-slate-600 dark:text-slate-400 mt-2">123 Intelligence Avenue<br/>Innovation District<br/>Global City, 10001</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-[#EF4123]/10 flex items-center justify-center shrink-0 mt-1">
+                        <span class="material-symbols-outlined text-[#EF4123]">mail</span>
+                    </div>
+                    <div>
+                        <h3 class="font-['Inter'] font-semibold text-slate-900 dark:text-white text-lg">Email Us</h3>
+                        <a href="mailto:contact@daleel.global" class="font-['Inter'] text-[#EF4123] hover:underline mt-2 inline-block">contact@daleel.global</a>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-[#F9A01B]/10 flex items-center justify-center shrink-0 mt-1">
+                        <span class="material-symbols-outlined text-[#F9A01B]">phone_in_talk</span>
+                    </div>
+                    <div>
+                        <h3 class="font-['Inter'] font-semibold text-slate-900 dark:text-white text-lg">Call Us</h3>
+                        <a href="tel:+18005550199" class="font-['Inter'] text-[#F9A01B] hover:underline mt-2 inline-block">+1 (800) 555-0199</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="glass-card rounded-[2rem] p-8 sm:p-10" data-animate="scale-in" data-delay="2">
+                <form class="space-y-6" onsubmit="return false;">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="contact-first-name" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">First Name</label>
+                            <input id="contact-first-name" type="text" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all" placeholder="John" />
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="contact-last-name" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">Last Name</label>
+                            <input id="contact-last-name" type="text" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all" placeholder="Doe" />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="contact-email" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">Work Email</label>
+                        <input id="contact-email" type="email" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all" placeholder="john@company.com" />
+                    </div>
+                    <div>
+                        <label for="contact-subject" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">Subject</label>
+                        <select id="contact-subject" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all">
+                            <option>Platform Demo</option>
+                            <option>Partnership Inquiry</option>
+                            <option>Support</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="contact-message" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">Message</label>
+                        <textarea id="contact-message" rows="4" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all resize-none" placeholder="How can we help you?"></textarea>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-[#00B2EC] text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base shadow-lg shadow-[#00B2EC]/20 hover:shadow-xl hover:shadow-[#00B2EC]/30 active:scale-95 transition-all duration-300">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</section>

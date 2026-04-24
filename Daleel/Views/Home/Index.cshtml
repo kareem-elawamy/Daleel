@@ -1,0 +1,956 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<section id="main-scrolly" class="relative bg-slate-50 dark:bg-[#0B1220] transition-colors duration-300"
+    style="height: 800vh;">
+
+    <div class="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+
+        <!-- Three.js 3D Particle Background -->
+        <canvas id="scrolly-canvas" class="absolute inset-0 w-full h-full z-0"></canvas>
+
+        <!-- Ambient Glows -->
+        <div class="absolute inset-0 pointer-events-none z-[1]">
+            <div id="glow-1"
+                class="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-[#00B2EC]/20 rounded-full blur-[120px] transition-all duration-700">
+            </div>
+            <div id="glow-2"
+                class="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-[#EF4123]/12 rounded-full blur-[100px] transition-all duration-700">
+            </div>
+        </div>
+
+        <!-- Step Progress Indicator (Left Side) -->
+        <div class="hidden sm:flex absolute start-8 top-1/2 -translate-y-1/2 flex-col gap-3 z-50">
+            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
+                <div class="step-fill w-full h-0 bg-[#00B2EC] transition-all duration-100"></div>
+            </div>
+            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
+                <div class="step-fill w-full h-0 bg-[#00B2EC] transition-all duration-100"></div>
+            </div>
+            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
+                <div class="step-fill w-full h-0 bg-[#EF4123] transition-all duration-100"></div>
+            </div>
+            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
+                <div class="step-fill w-full h-0 bg-[#F9A01B] transition-all duration-100"></div>
+            </div>
+            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
+                <div class="step-fill w-full h-0 bg-[#00B2EC] transition-all duration-100"></div>
+            </div>
+        </div>
+
+        <!-- Content Layer -->
+        <div class="relative w-full max-w-6xl px-4 sm:px-8 z-10">
+
+            <!-- ═══ Slide 0: Welcome ═══ -->
+            <div class="story-slide opacity-0 absolute inset-0 flex flex-col items-center text-center justify-center translate-y-10 transition-all duration-700"
+                data-index="0">
+                <span class="text-[#00B2EC]  font-bold tracking-[0.2em] text-xs uppercase mb-4">Welcome to Daleel</span>
+                <h1
+                    class="font-['Poppins'] text-3xl sm:text-5xl md:text-7xl text-brand-navy dark:text-white font-extrabold leading-tight">
+                    Global Vision.<br /><span class="text-gradient dark:text-white/70">Local Precision.</span>
+                </h1>
+                <p
+                    class="mt-4 sm:mt-6 text-brand-navy/60 dark:text-white/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+                    Navigate the complexities of international trade and information with the world's most advanced
+                    intelligence platform.
+                </p>
+                <!-- Scroll Indicator -->
+                <div class="mt-12 flex flex-col items-center gap-2 animate-bounce">
+                    <span class="text-brand-navy/30 dark:text-white/30 text-xs uppercase tracking-widest">Scroll to
+                        explore</span>
+                    <span class="material-symbols-outlined text-brand-navy/30 dark:text-white/30">expand_more</span>
+                </div>
+            </div>
+
+            <!-- ═══ Slide 1: Data Harvest ═══ -->
+            <div class="story-slide opacity-0 absolute inset-0 flex items-center justify-center translate-y-10 transition-all duration-700 w-full"
+                data-index="1">
+                <div class="grid md:grid-cols-2 gap-4 sm:gap-8 md:gap-12 items-center w-full px-2 sm:px-0">
+                    <!-- Start: Content -->
+                    <div class="text-start">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00B2EC]/10 text-[#00B2EC] dark:text-white/70 text-xs font-semibold tracking-wide mb-4 sm:mb-6">
+                            <span class="material-symbols-outlined text-[14px]"
+                                style="font-variation-settings: 'FILL' 1;">sensors</span>
+                            Data Intelligence
+                        </div>
+                        <h2
+                            class="font-['Poppins'] text-xl sm:text-3xl md:text-5xl dark:text-white/70 text-brand-navy font-bold leading-tight mb-3 sm:mb-6">
+                            10M+ Sources.<br /><span class="text-brand-navy/50 dark:text-white/65">One Truth.</span>
+                        </h2>
+                        <p
+                            class="text-brand-navy/60 dark:text-white/70 text-sm sm:text-lg leading-relaxed mb-6 sm:mb-8">
+                            We harvest real-time data from 140 jurisdictions — news feeds, regulatory filings,
+                            trade logs, and satellite imagery — turning raw information into strategic advantages.
+                        </p>
+                        <div class="grid grid-cols-3 gap-4 sm:gap-6 dark:text-white/70">
+                            <div>
+                                <p class="text-brand-navy dark:text-white font-bold text-2xl">140+</p>
+                                <p class="text-brand-navy/40 dark:text-white/40 text-xs uppercase tracking-widest">
+                                    Countries</p>
+                            </div>
+                            <div>
+                                <p class="text-brand-navy dark:text-white font-bold text-2xl">24/7</p>
+                                <p class="text-brand-navy/40 dark:text-white/40 text-xs uppercase tracking-widest">
+                                    Monitoring</p>
+                            </div>
+                            <div>
+                                <p class="text-brand-navy dark:text-white font-bold text-2xl">100%</p>
+                                <p class="text-brand-navy/40 dark:text-white/40 text-xs uppercase tracking-widest">
+                                    Verified</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right: Visual -->
+                    <div class="flex items-center justify-center mt-4 sm:mt-8 md:mt-0">
+                        <div class="relative">
+                            <img src="~/assets/images/globe_network.png" alt="Global intelligence network"
+                                class="w-full max-w-[140px] sm:max-w-xs md:max-w-md rounded-2xl opacity-80 shadow-2xl shadow-[#00B2EC]/10" />
+                            <div
+                                class="absolute inset-0 rounded-2xl bg-gradient-to-t from-white/80 dark:from-brand-navy/60 to-transparent">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Slide 2: AI Engine ═══ -->
+            <div class="story-slide opacity-0 absolute  inset-0 flex items-center justify-center translate-y-10 transition-all duration-700 w-full"
+                data-index="2">
+                <div class="grid md:grid-cols-2 gap-4 sm:gap-8 md:gap-12 items-center w-full px-2 sm:px-0">
+                    <!-- Start: Visual -->
+                    <div class="flex items-center justify-center order-2 md:order-none mt-4 sm:mt-8 md:mt-0">
+                        <div class="relative">
+                            <img src="~/assets/images/ai_neural.png" alt="AI neural fusion engine"
+                                class="w-full max-w-[140px] sm:max-w-xs md:max-w-md rounded-2xl opacity-80 shadow-2xl shadow-[#EF4123]/10" />
+                            <div
+                                class="absolute inset-0 rounded-2xl bg-gradient-to-t from-white/80 dark:from-brand-navy/60 to-transparent">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right: Content -->
+                    <div class="text-start order-1">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#EF4123]/10 text-[#EF4123] text-xs font-semibold tracking-wide mb-4 sm:mb-6">
+                            <span class="material-symbols-outlined text-[14px]"
+                                style="font-variation-settings: 'FILL' 1;">psychology</span>
+                            Neural Fusion Engine
+                        </div>
+                        <h2
+                            class="font-['Poppins'] text-xl sm:text-3xl md:text-5xl text-brand-navy dark:text-white font-bold leading-tight mb-3 sm:mb-6">
+                            AI That Sees<br /><span class="text-gradient-red">What You Can't.</span>
+                        </h2>
+                        <p
+                            class="text-brand-navy/60 dark:text-white/70 text-sm sm:text-lg leading-relaxed mb-6 sm:mb-8">
+                            Our proprietary Neural Fusion Engine cross-correlates geopolitical events with trade flows,
+                            sentiment shifts, and macro indicators — uncovering hidden patterns invisible to the human
+                            eye.
+                        </p>
+                        <!-- Mini progress bars -->
+                        <div class="space-y-4 max-w-sm">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-brand-navy/50 dark:text-white/65 text-xs">Pattern
+                                        Recognition</span>
+                                    <span class="text-[#EF4123] text-xs font-bold">94%</span>
+                                </div>
+                                <div
+                                    class="w-full h-1.5 rounded-full bg-brand-navy/10 dark:bg-white/10 overflow-hidden">
+                                    <div
+                                        class="h-full rounded-full bg-gradient-to-r from-[#EF4123] to-[#F9A01B] w-[94%]">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-brand-navy/50 dark:text-white/65 text-xs">Sentiment
+                                        Analysis</span>
+                                    <span class="text-[#F9A01B] text-xs font-bold">87%</span>
+                                </div>
+                                <div
+                                    class="w-full h-1.5 rounded-full bg-brand-navy/10 dark:bg-white/10 overflow-hidden">
+                                    <div
+                                        class="h-full rounded-full bg-gradient-to-r from-[#F9A01B] to-[#00B2EC] w-[87%]">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-brand-navy/50 dark:text-white/65 text-xs">Risk Correlation</span>
+                                    <span class="text-[#00B2EC] text-xs font-bold">91%</span>
+                                </div>
+                                <div
+                                    class="w-full h-1.5 rounded-full bg-brand-navy/10 dark:bg-white/10 overflow-hidden">
+                                    <div class="h-full rounded-full bg-[#00B2EC] w-[91%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Slide 3: Strategic Dashboard ═══ -->
+            <div class="story-slide opacity-0 absolute inset-0 flex items-center justify-center translate-y-10 transition-all duration-700 w-full"
+                data-index="3">
+                <div class="grid md:grid-cols-2 gap-4 sm:gap-8 md:gap-12 items-center w-full px-2 sm:px-0">
+                    <!-- Start: Content -->
+                    <div class="text-start">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F9A01B]/10 text-[#F9A01B] text-xs font-semibold tracking-wide mb-4 sm:mb-6">
+                            <span class="material-symbols-outlined text-[14px]"
+                                style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                            Strategic Command
+                        </div>
+                        <h2
+                            class="font-['Poppins'] text-xl sm:text-3xl md:text-5xl text-brand-navy dark:text-white font-bold leading-tight mb-3 sm:mb-6">
+                            Clarity From<br /><span class="text-[#F9A01B]">Complexity.</span>
+                        </h2>
+                        <p
+                            class="text-brand-navy/60 dark:text-white/70 text-sm sm:text-lg leading-relaxed mb-6 sm:mb-8">
+                            Our analysts distill fused intelligence into actionable strategic briefs — complete with
+                            scenario modeling, risk heat maps, and opportunity scoring — delivered in real time.
+                        </p>
+                        <!-- Mini dashboard stats -->
+                        <div class="grid grid-cols-2 gap-4 max-w-sm">
+                            <div class="glass-card rounded-xl p-4 text-center">
+                                <p class="font-['Poppins'] text-2xl font-bold text-emerald-400">▲ 12.4%</p>
+                                <p
+                                    class="text-brand-navy/40 dark:text-white/40 text-[10px] uppercase tracking-wider mt-1">
+                                    Opportunity Score</p>
+                            </div>
+                            <div class="glass-card rounded-xl p-4 text-center">
+                                <p class="font-['Poppins'] text-2xl font-bold text-[#EF4123]">▼ 3.1%</p>
+                                <p
+                                    class="text-brand-navy/40 dark:text-white/40 text-[10px] uppercase tracking-wider mt-1">
+                                    Risk Exposure</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right: Visual -->
+                    <div class="flex items-center justify-center mt-4 sm:mt-8 md:mt-0">
+                        <div class="relative">
+                            <img src="~/assets/images/data_dashboard.png" alt="Strategic analytics dashboard"
+                                class="w-full max-w-[160px] sm:max-w-xs md:max-w-md rounded-2xl opacity-80 shadow-2xl shadow-[#F9A01B]/10" />
+                            <div
+                                class="absolute inset-0 rounded-2xl bg-gradient-to-t from-white/80 dark:from-brand-navy/60 to-transparent">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Slide 4: CTA ═══ -->
+            <div class="story-slide opacity-0 absolute inset-0 flex flex-col items-center text-center justify-center translate-y-10 transition-all duration-700 px-2 sm:px-0 w-full"
+                data-index="4">
+                <div
+                    class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl glass-card flex items-center justify-center mb-6 sm:mb-8">
+                    <span class="material-symbols-outlined text-[#00B2EC] text-3xl sm:text-4xl"
+                        style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+                </div>
+                <h2
+                    class="font-['Poppins'] text-2xl sm:text-4xl md:text-6xl text-brand-navy dark:text-white font-bold mb-3 sm:mb-4">
+                    Ready to Lead?</h2>
+                <p class="text-brand-navy/50 dark:text-white/65 text-sm sm:text-lg max-w-xl mb-6 sm:mb-10 px-4">
+                    Join 150,000+ trade partners across 140 jurisdictions who trust Daleel to power their global
+                    strategy.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button
+                        class="relative group overflow-hidden bg-gradient-to-r from-[#00B2EC] to-[#008dbb] text-white px-8 py-3 rounded-2xl font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-500/25">
+                        <span class="relative z-10">Explore Solutions</span>
+                        <div
+                            class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                        </div>
+                    </button>
+
+                    <button
+                        class="backdrop-blur-md bg-brand-navy/5 dark:bg-white/5 border border-brand-navy/10 dark:border-white/10 text-brand-navy dark:text-white px-8 py-3 rounded-2xl font-semibold transition-all hover:bg-brand-navy/10 dark:hover:bg-white/10 active:scale-95">
+                        Download Briefing
+                    </button>
+                </div>
+            </div>
+
+        </div><!-- /content layer -->
+    </div><!-- /sticky -->
+</section>
+
+<section class="relative bg-[#F8F9FA] dark:bg-[#060D1A] overflow-hidden py-20 sm:py-28 transition-colors duration-300">
+
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div
+            class="absolute -top-32 ltr:-right-32 rtl:-left-32 w-[600px] h-[600px] rounded-full bg-[#00B2EC]/5 blur-3xl">
+        </div>
+        <div
+            class="absolute -bottom-40 ltr:-left-40 rtl:-right-40 w-[500px] h-[500px] rounded-full bg-[#F9A01B]/5 blur-3xl">
+        </div>
+    </div>
+
+    <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8 grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div class="space-y-8 text-start" data-animate="slide-start">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#00B2EC] to-[#008dbb] text-white font-['Inter'] text-xs font-semibold tracking-wide shadow-sm">
+                <span class="material-symbols-outlined text-[14px]"
+                    style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                Enterprise Grade Intelligence
+            </div>
+
+            <h1
+                class="font-['Poppins'] text-[clamp(2.25rem,5vw,3.5rem)] font-extrabold leading-[1.1] tracking-tight text-brand-navy dark:text-white transition-colors duration-300">
+                Precision Strategy<br class="hidden lg:block" /> for the Global&nbsp;Market.
+            </h1>
+
+            <p
+                class="font-['Inter'] text-lg leading-relaxed text-slate-500 dark:text-slate-400 max-w-xl transition-colors duration-300">
+                Daleel Global Vision provides the navigational clarity required to dominate complex international
+                landscapes through data-driven precision.
+            </p>
+
+            <div class="flex flex-wrap gap-4 pt-2">
+                <button
+                    class="bg-[#00B2EC] text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base shadow-lg shadow-[#00B2EC]/20 hover:shadow-xl hover:shadow-[#00B2EC]/30 active:scale-95 transition-all duration-300">
+                    Explore Solutions
+                </button>
+                <button
+                    class="border border-brand-navy/20 dark:border-white/20 text-brand-navy dark:text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base hover:bg-brand-navy/5 dark:hover:bg-white/5 active:scale-95 transition-all duration-300">
+                    Watch Briefing
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white/70 dark:bg-[#0A192F]/70 backdrop-blur-xl border border-slate-200 dark:border-slate-800 shadow-lg rounded-2xl p-6 sm:p-8 transition-all duration-300"
+            data-animate="slide-end" data-delay="2">
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h3
+                        class="font-['Poppins'] text-xl font-semibold text-brand-navy dark:text-white flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-[#00B2EC]"
+                            style="font-variation-settings: 'FILL' 1;">psychology</span>
+                        Global Insight AI
+                    </h3>
+                    <span class="inline-flex items-center gap-2 text-xs font-['Inter'] font-medium text-slate-400">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span
+                                class="absolute inline-flex h-full w-full rounded-full bg-[#00B2EC] opacity-75 animate-ping"></span>
+                            <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#00B2EC]"></span>
+                        </span>
+                        Online
+                    </span>
+                </div>
+
+                <div class="relative">
+                    <input
+                        class="w-full bg-white dark:bg-[#112240] p-4 pe-14 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-[#00B2EC] outline-none text-brand-navy dark:text-white"
+                        placeholder="Analyze trade corridors..." type="text" />
+                    <button
+                        class="absolute end-3 top-1/2 -translate-y-1/2 p-2 bg-[#00B2EC] text-white rounded-lg hover:bg-[#00a0d6] transition-all">
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <button
+                        class="px-3.5 py-1.5 rounded-full text-xs bg-slate-100 dark:bg-[#112240] text-slate-600 dark:text-slate-300 hover:bg-[#00B2EC] hover:text-white transition-all">Market
+                        Volatility</button>
+                    <button
+                        class="px-3.5 py-1.5 rounded-full text-xs bg-slate-100 dark:bg-[#112240] text-slate-600 dark:text-slate-300 hover:bg-[#00B2EC] hover:text-white transition-all">Supply
+                        Chain</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8 mt-16">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+
+            <div
+                class="relative overflow-hidden bg-white/70 dark:bg-[#0A192F]/70 backdrop-blur-xl border border-slate-200 dark:border-slate-800 shadow-lg rounded-2xl p-6 text-center group hover:-translate-y-2 transition-all duration-300">
+                <div
+                    class="absolute inset-0 bg-gradient-to-tr from-transparent via-[#00B2EC]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
+                </div>
+
+                <div class="relative z-10">
+                    <p
+                        class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300">
+                        10M+</p>
+                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">
+                        Verified Articles</p>
+                </div>
+            </div>
+
+            <div
+                class="relative overflow-hidden bg-white/70 dark:bg-[#0A192F]/70 backdrop-blur-xl border border-slate-200 dark:border-slate-800 shadow-lg rounded-2xl p-6 text-center group hover:-translate-y-2 transition-all duration-300">
+                <div
+                    class="absolute inset-0 bg-gradient-to-tr from-transparent via-[#00B2EC]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
+                </div>
+                <div class="relative z-10">
+                    <p
+                        class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300">
+                        150K+</p>
+                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">Trade
+                        Partners</p>
+                </div>
+            </div>
+
+            <div
+                class="relative overflow-hidden bg-white/70 dark:bg-[#0A192F]/70 backdrop-blur-xl border border-slate-200 dark:border-slate-800 shadow-lg rounded-2xl p-6 text-center group hover:-translate-y-2 transition-all duration-300">
+                <div
+                    class="absolute inset-0 bg-gradient-to-tr from-transparent via-[#00B2EC]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
+                </div>
+                <div class="relative z-10">
+                    <p
+                        class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300">
+                        100%</p>
+                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">Trust
+                        Score</p>
+                </div>
+            </div>
+
+            <div
+                class="relative overflow-hidden bg-white/70 dark:bg-[#0A192F]/70 backdrop-blur-xl border border-slate-200 dark:border-slate-800 shadow-lg rounded-2xl p-6 text-center group hover:-translate-y-2 transition-all duration-300">
+                <div
+                    class="absolute inset-0 bg-gradient-to-tr from-transparent via-[#00B2EC]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
+                </div>
+                <div class="relative z-10">
+                    <p
+                        class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300">
+                        24/7</p>
+                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">AI
+                        Monitoring</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- The Daleel Framework -->
+<section class="relative py-24 sm:py-32 bg-white dark:bg-[#060D1A] overflow-hidden transition-colors duration-300">
+
+    <!-- Subtle Background Pattern -->
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute top-20 ltr:-left-20 rtl:-right-20 w-[500px] h-[500px] rounded-full bg-[#00B2EC]/[0.04] blur-[100px] animate-pulse-slow"></div>
+        <div class="absolute bottom-20 ltr:-right-20 rtl:-left-20 w-[400px] h-[400px] rounded-full bg-[#F9A01B]/[0.03] blur-[80px] animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+    </div>
+
+    <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8">
+
+        <!-- Section Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16 sm:mb-20">
+            <div class="text-start max-w-xl" data-animate="slide-start">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-brand-navy dark:text-white font-['Inter'] text-xs font-semibold tracking-wide mb-6 shadow-sm">
+                    <span class="material-symbols-outlined text-[14px] text-[#00B2EC]" style="font-variation-settings: 'FILL' 1;">category</span>
+                    Our Core Pillars
+                </div>
+                <h2 class="font-['Poppins'] text-4xl sm:text-5xl md:text-6xl font-extrabold text-brand-navy dark:text-white leading-tight mb-4 tracking-tight">
+                    The Daleel <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00B2EC] to-[#F9A01B]">Framework</span>
+                </h2>
+                <p class="font-['Inter'] text-slate-500 dark:text-slate-400 text-lg sm:text-xl leading-relaxed">
+                    Three interconnected pillars that form the foundation of global strategic intelligence.
+                </p>
+            </div>
+            <div class="hidden md:block w-24 h-1.5 rounded-full bg-gradient-to-r from-[#00B2EC] via-[#EF4123] to-[#F9A01B] shrink-0" data-animate="slide-end" data-delay="2"></div>
+        </div>
+
+        <!-- Framework Cards -->
+        <div class="grid md:grid-cols-3 gap-6 sm:gap-8">
+
+            <!-- Card 1: Global Information -->
+            <div class="group relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-[#00B2EC]/10 bg-white dark:bg-[#0A192F] border border-slate-200 dark:border-slate-800" data-animate="fade-up" data-delay="1">
+                <!-- Card Background Hover State -->
+                <div class="absolute inset-0 bg-gradient-to-br from-[#00B2EC]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                <!-- Glowing Border Effect -->
+                <div class="absolute -inset-px bg-gradient-to-br from-[#00B2EC] to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-3xl" style="z-index: -1;"></div>
+
+                <div class="relative p-8 sm:p-10 h-full flex flex-col">
+                    <!-- Header: Icon & Number -->
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-[#112240] border border-slate-100 dark:border-slate-700/50 flex items-center justify-center group-hover:bg-[#00B2EC] group-hover:border-[#00B2EC] group-hover:shadow-lg group-hover:shadow-[#00B2EC]/30 transition-all duration-500 group-hover:scale-110">
+                            <span class="material-symbols-outlined text-[#00B2EC] group-hover:text-white text-[28px] transition-colors duration-500" style="font-variation-settings: 'FILL' 1;">public</span>
+                        </div>
+                        <span class="font-['Poppins'] text-5xl font-extrabold text-slate-100 dark:text-slate-800/50 group-hover:text-[#00B2EC]/10 transition-colors duration-500">01</span>
+                    </div>
+
+                    <!-- Content -->
+                    <h3 class="font-['Poppins'] text-2xl font-bold mb-4 text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors duration-300">
+                        Global Information
+                    </h3>
+                    <p class="font-['Inter'] text-slate-500 dark:text-slate-400 leading-relaxed mb-8 flex-grow group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors duration-300">
+                        Comprehensive intelligence harvesting across all major trade corridors. A single source of truth for decision makers navigating 140+ jurisdictions.
+                    </p>
+
+                    <!-- Features List -->
+                    <ul class="space-y-3 font-['Inter'] text-sm mt-auto pt-6 border-t border-slate-100 dark:border-slate-800/50 group-hover:border-[#00B2EC]/20 transition-colors duration-500">
+                        <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-75">
+                            <span class="material-symbols-outlined text-[18px] text-[#00B2EC]">check_circle</span>
+                            Real-time news monitoring
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-100">
+                            <span class="material-symbols-outlined text-[18px] text-[#00B2EC]">check_circle</span>
+                            Regulatory filing tracking
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-150">
+                            <span class="material-symbols-outlined text-[18px] text-[#00B2EC]">check_circle</span>
+                            Multi-language processing
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 2: Global Trade -->
+            <div class="group relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-[#EF4123]/10 bg-white dark:bg-[#0A192F] border border-slate-200 dark:border-slate-800" data-animate="fade-up" data-delay="3">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#EF4123]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute -inset-px bg-gradient-to-br from-[#EF4123] to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-3xl" style="z-index: -1;"></div>
+
+                <div class="relative p-8 sm:p-10 h-full flex flex-col">
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-[#112240] border border-slate-100 dark:border-slate-700/50 flex items-center justify-center group-hover:bg-[#EF4123] group-hover:border-[#EF4123] group-hover:shadow-lg group-hover:shadow-[#EF4123]/30 transition-all duration-500 group-hover:scale-110">
+                            <span class="material-symbols-outlined text-[#EF4123] group-hover:text-white text-[28px] transition-colors duration-500" style="font-variation-settings: 'FILL' 1;">payments</span>
+                        </div>
+                        <span class="font-['Poppins'] text-5xl font-extrabold text-slate-100 dark:text-slate-800/50 group-hover:text-[#EF4123]/10 transition-colors duration-500">02</span>
+                    </div>
+
+                    <h3 class="font-['Poppins'] text-2xl font-bold mb-4 text-brand-navy dark:text-white group-hover:text-[#EF4123] transition-colors duration-300">
+                        Global Trade
+                    </h3>
+                    <p class="font-['Inter'] text-slate-500 dark:text-slate-400 leading-relaxed mb-8 flex-grow group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors duration-300">
+                        Seamless cross-border transaction analysis and optimization, powered by AI-driven logistics intelligence and geopolitical risk modeling.
+                    </p>
+
+                    <ul class="space-y-3 font-['Inter'] text-sm mt-auto pt-6 border-t border-slate-100 dark:border-slate-800/50 group-hover:border-[#EF4123]/20 transition-colors duration-500">
+                        <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-75">
+                            <span class="material-symbols-outlined text-[18px] text-[#EF4123]">check_circle</span>
+                            Supply chain optimization
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-100">
+                            <span class="material-symbols-outlined text-[18px] text-[#EF4123]">check_circle</span>
+                            Tariff & compliance mapping
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-150">
+                            <span class="material-symbols-outlined text-[18px] text-[#EF4123]">check_circle</span>
+                            Risk corridor analysis
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 3: Purposeful Media -->
+            <div class="group relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-[#F9A01B]/10 bg-white dark:bg-[#0A192F] border border-slate-200 dark:border-slate-800" data-animate="fade-up" data-delay="5">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#F9A01B]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute -inset-px bg-gradient-to-br from-[#F9A01B] to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-3xl" style="z-index: -1;"></div>
+
+                <div class="relative p-8 sm:p-10 h-full flex flex-col">
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-[#112240] border border-slate-100 dark:border-slate-700/50 flex items-center justify-center group-hover:bg-[#F9A01B] group-hover:border-[#F9A01B] group-hover:shadow-lg group-hover:shadow-[#F9A01B]/30 transition-all duration-500 group-hover:scale-110">
+                            <span class="material-symbols-outlined text-[#F9A01B] group-hover:text-white text-[28px] transition-colors duration-500" style="font-variation-settings: 'FILL' 1;">campaign</span>
+                        </div>
+                        <span class="font-['Poppins'] text-5xl font-extrabold text-slate-100 dark:text-slate-800/50 group-hover:text-[#F9A01B]/10 transition-colors duration-500">03</span>
+                    </div>
+
+                    <h3 class="font-['Poppins'] text-2xl font-bold mb-4 text-brand-navy dark:text-white group-hover:text-[#F9A01B] transition-colors duration-300">
+                        Purposeful Media
+                    </h3>
+                    <p class="font-['Inter'] text-slate-500 dark:text-slate-400 leading-relaxed mb-8 flex-grow group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors duration-300">
+                        Strategic narrative shaping and communication strategies that ensure your vision resonates clearly in the global digital marketplace.
+                    </p>
+
+                    <ul class="space-y-3 font-['Inter'] text-sm mt-auto pt-6 border-t border-slate-100 dark:border-slate-800/50 group-hover:border-[#F9A01B]/20 transition-colors duration-500">
+                        <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-75">
+                            <span class="material-symbols-outlined text-[18px] text-[#F9A01B]">check_circle</span>
+                            Sentiment analysis
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-100">
+                            <span class="material-symbols-outlined text-[18px] text-[#F9A01B]">check_circle</span>
+                            Narrative intelligence
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-150">
+                            <span class="material-symbols-outlined text-[18px] text-[#F9A01B]">check_circle</span>
+                            Digital reputation mapping
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Why DALEEL is Different -->
+<section class="relative bg-[#F8F9FA] dark:bg-[#0A192F] py-24 sm:py-32 overflow-hidden transition-colors duration-300">
+
+    <!-- Ambient Glow -->
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute top-0 ltr:right-0 rtl:left-0 w-[500px] h-[500px] rounded-full bg-[#00B2EC]/8 blur-[100px]">
+        </div>
+        <div
+            class="absolute bottom-0 ltr:left-1/4 rtl:right-1/4 w-[400px] h-[400px] rounded-full bg-[#F9A01B]/5 blur-[80px]">
+        </div>
+    </div>
+
+    <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8">
+
+        <!-- Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-16 sm:mb-20" data-animate="fade-up">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00B2EC]/10 text-[#00B2EC] font-['Inter'] text-xs font-semibold tracking-wide mb-6">
+                <span class="material-symbols-outlined text-[14px]"
+                    style="font-variation-settings: 'FILL' 1;">diamond</span>
+                What Sets Us Apart
+            </div>
+            <h2
+                class="font-['Poppins'] text-3xl sm:text-4xl md:text-5xl font-bold text-brand-navy dark:text-white leading-tight mb-6">
+                Why <span class="text-gradient">DALEEL</span> is Different
+            </h2>
+            <p
+                class="font-['Inter'] text-base sm:text-lg text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed">
+                While others react to the market, we anticipate it. Our intelligence infrastructure
+                is built for the speed and complexity of the modern global economy.
+            </p>
+        </div>
+
+        <!-- Differentiators Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+
+            <!-- Card 1: Real-Time Intelligence -->
+            <div class="group glass-card rounded-2xl p-8 hover:border-[#00B2EC]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(0,178,236,0.1)] transition-all duration-500 text-start"
+                data-animate="scale-in" data-delay="1">
+                <div
+                    class="w-14 h-14 rounded-xl bg-[#00B2EC]/10 flex items-center justify-center mb-6 group-hover:bg-[#00B2EC]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,178,236,0.2)] transition-all duration-500">
+                    <span class="material-symbols-outlined text-[#00B2EC] text-[28px]"
+                        style="font-variation-settings: 'FILL' 1;">speed</span>
+                </div>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Real-Time
+                    Intelligence</h3>
+                <p
+                    class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
+                    Our AI processes 10M+ data points per day across 140 jurisdictions — delivering actionable
+                    intelligence in minutes, not weeks.
+                </p>
+                <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[#00B2EC] font-['Poppins'] text-2xl font-bold">
+                            5min</span>
+                        <span
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Average
+                            Insight Delivery</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Trust-First Architecture -->
+            <div class="group glass-card rounded-2xl p-8 hover:border-[#EF4123]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(239,65,35,0.1)] transition-all duration-500 text-start"
+                data-animate="scale-in" data-delay="2">
+                <div
+                    class="w-14 h-14 rounded-xl bg-[#EF4123]/10 flex items-center justify-center mb-6 group-hover:bg-[#EF4123]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(239,65,35,0.2)] transition-all duration-500">
+                    <span class="material-symbols-outlined text-[#EF4123] text-[28px]"
+                        style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                </div>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Trust-First
+                    Architecture</h3>
+                <p
+                    class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
+                    Every data point is verified through our proprietary trust-scoring system.
+                    No noise. No misinformation. Only verified intelligence you can stake decisions on.
+                </p>
+                <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[#EF4123] font-['Poppins'] text-2xl font-bold">100%</span>
+                        <span
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Verified
+                            Trust Score</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Cross-Domain Fusion -->
+            <div class="group glass-card rounded-2xl p-8 hover:border-[#F9A01B]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(249,160,27,0.1)] transition-all duration-500 text-start"
+                data-animate="scale-in" data-delay="3">
+                <div
+                    class="w-14 h-14 rounded-xl bg-[#F9A01B]/10 flex items-center justify-center mb-6 group-hover:bg-[#F9A01B]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(249,160,27,0.2)] transition-all duration-500">
+                    <span class="material-symbols-outlined text-[#F9A01B] text-[28px]"
+                        style="font-variation-settings: 'FILL' 1;">hub</span>
+                </div>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Cross-Domain Fusion
+                </h3>
+                <p
+                    class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
+                    We don't just aggregate — we fuse. Trade data meets geopolitical analysis meets media sentiment
+                    to reveal patterns no single-domain platform can see.
+                </p>
+                <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[#F9A01B] font-['Poppins'] text-2xl font-bold">3-in-1</span>
+                        <span
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Information
+                            · Trade · Media</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: Global Coverage -->
+            <div class="group glass-card rounded-2xl p-8 hover:border-[#00B2EC]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(0,178,236,0.1)] transition-all duration-500 text-start"
+                data-animate="scale-in" data-delay="4">
+                <div
+                    class="w-14 h-14 rounded-xl bg-[#00B2EC]/10 flex items-center justify-center mb-6 group-hover:bg-[#00B2EC]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,178,236,0.2)] transition-all duration-500">
+                    <span class="material-symbols-outlined text-[#00B2EC] text-[28px]"
+                        style="font-variation-settings: 'FILL' 1;">language</span>
+                </div>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">True Global Coverage
+                </h3>
+                <p
+                    class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
+                    From MENA corridors to Southeast Asian supply chains — our intelligence network
+                    spans every major trade region with local expertise and cultural context.
+                </p>
+                <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[#00B2EC] font-['Poppins'] text-2xl font-bold">140+</span>
+                        <span
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Jurisdictions
+                            Covered</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5: Predictive, Not Reactive -->
+            <div class="group glass-card rounded-2xl p-8 hover:border-[#EF4123]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(239,65,35,0.1)] transition-all duration-500 text-start"
+                data-animate="scale-in" data-delay="5">
+                <div
+                    class="w-14 h-14 rounded-xl bg-[#EF4123]/10 flex items-center justify-center mb-6 group-hover:bg-[#EF4123]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(239,65,35,0.2)] transition-all duration-500">
+                    <span class="material-symbols-outlined text-[#EF4123] text-[28px]"
+                        style="font-variation-settings: 'FILL' 1;">trending_up</span>
+                </div>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Predictive, Not
+                    Reactive</h3>
+                <p
+                    class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
+                    Our AI doesn't just report what happened — it forecasts what's coming. Risk signals
+                    are detected 72 hours before they hit mainstream radar.
+                </p>
+                <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[#EF4123] font-['Poppins'] text-2xl font-bold">72hrs</span>
+                        <span
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Early
+                            Warning Advantage</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 6: Enterprise-Grade Security -->
+            <div class="group glass-card rounded-2xl p-8 hover:border-[#F9A01B]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(249,160,27,0.1)] transition-all duration-500 text-start"
+                data-animate="scale-in" data-delay="6">
+                <div
+                    class="w-14 h-14 rounded-xl bg-[#F9A01B]/10 flex items-center justify-center mb-6 group-hover:bg-[#F9A01B]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(249,160,27,0.2)] transition-all duration-500">
+                    <span class="material-symbols-outlined text-[#F9A01B] text-[28px]"
+                        style="font-variation-settings: 'FILL' 1;">shield_lock</span>
+                </div>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Enterprise-Grade
+                    Security</h3>
+                <p
+                    class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
+                    SOC 2 compliant, end-to-end encrypted, with role-based access control.
+                    Your intelligence stays yours — protected at every layer.
+                </p>
+                <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[#F9A01B] font-['Poppins'] text-2xl font-bold">SOC 2</span>
+                        <span
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Certified
+                            & Encrypted</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom CTA -->
+        <div class="text-center mt-16 sm:mt-24 pb-10" data-animate="fade-up" data-delay="7">
+            <div class="w-24 h-1 bg-[#00B2EC]/20 mx-auto mb-8 rounded-full"></div>
+
+            <p
+                class="font-['Inter'] text-slate-500 dark:text-slate-400 text-sm font-medium tracking-wide mb-6 uppercase">
+                Ready to experience the difference?
+            </p>
+
+            <a href="#"
+                class="group relative inline-flex items-center gap-3 bg-[#00B2EC] text-white px-10 py-4 rounded-2xl font-['Inter'] font-bold text-lg shadow-[0_10px_30px_rgba(0,178,236,0.3)] hover:shadow-[0_15px_40px_rgba(0,178,236,0.5)] hover:-translate-y-1 active:scale-95 transition-all duration-300">
+
+                <span
+                    class="absolute inset-0 rounded-2xl bg-[#00B2EC] blur-md opacity-0 group-hover:opacity-40 transition-opacity"></span>
+
+                <span class="relative z-10">Schedule a Demo</span>
+
+                <span
+                    class="relative z-10 material-symbols-outlined text-[22px] transition-transform duration-300 group-hover:translate-x-1.5 rtl:group-hover:-translate-x-1.5 rtl:rotate-180">
+                    arrow_forward
+                </span>
+            </a>
+
+            <div class="mt-6">
+                <a href="#"
+                    class="text-slate-400 hover:text-[#00B2EC] text-xs font-semibold transition-colors border-b border-transparent hover:border-[#00B2EC] pb-0.5">
+                    View Pricing Plans
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Global Perspectives / Insights -->
+<section class="relative bg-[#F8F9FA] dark:bg-[#060D1A] py-24 sm:py-32 overflow-hidden transition-colors duration-300">
+
+    <!-- Background Decoration -->
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute -top-20 ltr:right-0 rtl:left-0 w-[500px] h-[500px] rounded-full bg-[#00B2EC]/[0.03] blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8">
+
+        <!-- Section Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12 sm:mb-16">
+            <div class="text-start" data-animate="fade-up">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-navy/5 dark:bg-white/5 text-brand-navy dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-6">
+                    <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">insights</span>
+                    Intelligence Feed
+                </div>
+                <h2 class="font-['Poppins'] text-3xl sm:text-4xl font-bold text-brand-navy dark:text-white mb-2">Global Perspectives</h2>
+                <p class="font-['Inter'] text-slate-500 dark:text-slate-400 text-base sm:text-lg">Strategic insights from our world-class analysts.</p>
+            </div>
+            <a href="#"
+                class="inline-flex items-center gap-2 text-[#00B2EC] font-['Inter'] font-semibold text-sm hover:gap-3 transition-all duration-300 shrink-0 group">
+                View All Insights
+                <span class="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+            </a>
+        </div>
+
+        <!-- Bento Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[280px] sm:auto-rows-[300px]">
+
+            <!-- Main Feature (Large) -->
+            <div class="md:col-span-7 md:row-span-2 relative rounded-2xl overflow-hidden group cursor-pointer" data-animate="slide-start" data-delay="1">
+                <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    alt="modern glass corporate skyscrapers reflecting sunlight"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYvt_umU7PQEKKpALP6ubUKpQGILOmQ-JUgeEf9D2X8QcOWVHA9msHxUOWvLJ45rK1Zf-PATGkErd67lGkqP1MamDwvN-r85ninbUfzndrqVDs-hhLmAdAb6z3Sghc-rwbxjhd6-IalHKRq04WO7Fg9gPdGtNDvYJy-Gwb4o4y41VIGt1gQ1D7xshfcMERwwqSk6HS06Kt7Q1Y69C6paBPW7hWlt2yEIi4JQFAkbgInSnUyfSNDlgZkKlAaL4aWMt6PJTVRS1bej0" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+
+                <!-- Badge + Content -->
+                <div class="absolute bottom-0 start-0 p-8 sm:p-10 text-start">
+                    <span class="bg-[#00B2EC] text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider mb-4 inline-block shadow-lg shadow-[#00B2EC]/20">
+                        White Paper
+                    </span>
+                    <h3 class="font-['Poppins'] text-xl sm:text-2xl font-bold text-white mb-3 leading-snug max-w-lg">
+                        The 2025 Global Economic Pivot: Navigation Strategies
+                    </h3>
+                    <p class="font-['Inter'] text-white/70 text-sm max-w-md leading-relaxed">
+                        How emerging economies are reshaping trade corridors and what it means for institutional investors.
+                    </p>
+                    <div class="mt-5 flex items-center gap-4">
+                        <span class="text-white/40 text-xs font-['Inter']">12 min read</span>
+                        <span class="w-1 h-1 rounded-full bg-white/20"></span>
+                        <span class="text-white/40 text-xs font-['Inter']">May 15, 2024</span>
+                    </div>
+                </div>
+
+                <!-- Hover Arrow -->
+                <div class="absolute top-6 end-6 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                    <span class="material-symbols-outlined text-white text-[20px]">north_east</span>
+                </div>
+            </div>
+
+            <!-- Secondary Card 1 -->
+            <div class="md:col-span-5 relative rounded-2xl overflow-hidden group cursor-pointer bg-white dark:bg-[#0A192F] shadow-sm hover:shadow-xl transition-all duration-500" data-animate="slide-end" data-delay="2">
+                <div class="h-full p-8 flex flex-col justify-between text-start">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="bg-[#EF4123]/10 text-[#EF4123] px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Report</span>
+                            <span class="text-slate-300 dark:text-slate-500 text-xs font-['Inter']">May 12, 2024</span>
+                        </div>
+                        <h4 class="font-['Poppins'] text-lg sm:text-xl font-bold text-brand-navy dark:text-white mb-3 group-hover:text-[#00B2EC] transition-colors duration-300">
+                            Supply Chain Resiliency: Mapping New Routes in South East Asia
+                        </h4>
+                        <p class="font-['Inter'] text-slate-400 text-sm leading-relaxed line-clamp-3">
+                            How shifting geopolitical dynamics are creating new logistics corridors
+                            and what enterprises need to prepare for.
+                        </p>
+                    </div>
+                    <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 text-xs font-['Inter']">8 min read</span>
+                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-500 group-hover:text-[#00B2EC] transition-colors text-[20px]">north_east</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Card 2 -->
+            <div class="md:col-span-5 relative rounded-2xl overflow-hidden group cursor-pointer bg-white dark:bg-[#0A192F] shadow-sm hover:shadow-xl transition-all duration-500" data-animate="slide-end" data-delay="3">
+                <div class="h-full p-8 flex flex-col justify-between text-start">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="bg-[#F9A01B]/10 text-[#F9A01B] px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Analysis</span>
+                            <span class="text-slate-300 dark:text-slate-500 text-xs font-['Inter']">May 08, 2024</span>
+                        </div>
+                        <h4 class="font-['Poppins'] text-lg sm:text-xl font-bold text-brand-navy dark:text-white mb-3 group-hover:text-[#00B2EC] transition-colors duration-300">
+                            AI in Governance: Predictive Modeling for Regulatory Compliance
+                        </h4>
+                        <p class="font-['Inter'] text-slate-400 text-sm leading-relaxed line-clamp-3">
+                            Machine learning models are transforming how governments anticipate
+                            policy impacts and enforce compliance at scale.
+                        </p>
+                    </div>
+                    <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 text-xs font-['Inter']">6 min read</span>
+                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-500 group-hover:text-[#00B2EC] transition-colors text-[20px]">north_east</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Row: Quick Articles -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+            <div class="group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="4">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="w-2 h-2 rounded-full bg-[#00B2EC]"></span>
+                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">Trade Alert</span>
+                </div>
+                <h5 class="font-['Poppins'] text-sm font-bold text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors leading-snug">
+                    MENA Trade Volumes Surge 23% in Q1 2024
+                </h5>
+            </div>
+            <div class="group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="5">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="w-2 h-2 rounded-full bg-[#EF4123]"></span>
+                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">Risk Alert</span>
+                </div>
+                <h5 class="font-['Poppins'] text-sm font-bold text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors leading-snug">
+                    Emerging Sanctions Impact on Commodity Flows
+                </h5>
+            </div>
+            <div class="group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="6">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="w-2 h-2 rounded-full bg-[#F9A01B]"></span>
+                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">Media Watch</span>
+                </div>
+                <h5 class="font-['Poppins'] text-sm font-bold text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors leading-snug">
+                    Digital Narrative Shifts in Global ESG Reporting
+                </h5>
+            </div>
+            <div class="group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="7">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">Opportunity</span>
+                </div>
+                <h5 class="font-['Poppins'] text-sm font-bold text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors leading-snug">
+                    New Free Trade Zones Creating Investment Corridors
+                </h5>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/hero-scrolly.js" asp-append-version="true"></script>
+}

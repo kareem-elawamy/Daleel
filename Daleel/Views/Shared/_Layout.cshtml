@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Daleel</title>
+    <script type="importmap"></script>
+    
+    <!-- Theme & Tailwind setup -->
+    <script src="~/js/theme.js" asp-append-version="true"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "selector",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary-fixed": "#ffdad3",
+                        "primary-fixed-dim": "#77d1ff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#001e2c",
+                        "surface-container-low": "#f2f4f6",
+                        "on-tertiary-fixed": "#3f0400",
+                        "on-surface": "#191c1e",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#006689",
+                        "on-tertiary-container": "#790e00",
+                        "on-secondary-fixed-variant": "#31447a",
+                        "on-tertiary-fixed-variant": "#8e1300",
+                        "surface-variant": "#e0e3e5",
+                        "primary-fixed": "#c2e8ff",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#ba1c00",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#3a4c83",
+                        "surface-bright": "#f7f9fb",
+                        "tertiary-fixed-dim": "#ffb4a5",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#00174b",
+                        "on-background": "#191c1e",
+                        "surface": "#f7f9fb",
+                        "secondary": "#4a5c94",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed": "#dbe1ff",
+                        "secondary-container": "#acbffd",
+                        "on-primary-container": "#004058",
+                        "outline-variant": "#bdc8d0",
+                        "on-surface-variant": "#3d484f",
+                        "inverse-surface": "#2d3133",
+                        "primary": "#006689",
+                        "surface-dim": "#d8dadc",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f7f9fb",
+                        "surface-container-highest": "#e0e3e5",
+                        "tertiary-container": "#ff8168",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed-variant": "#004d68",
+                        "outline": "#6d7980",
+                        "primary-container": "#00b2ec",
+                        "inverse-primary": "#77d1ff",
+                        "on-error": "#ffffff",
+                        "daleel-navy": "#1D3166",
+                        "brand-navy": "#1D3166",
+                        "daleel-sky": "#00B2EC",
+                        "daleel-red": "#EF4123",
+                        "daleel-orange": "#F9A01B",
+                        "daleel-offwhite": "#F8F9FA",
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "section-gap": "80px",
+                        "container-max": "1440px",
+                        "margin-page": "48px",
+                        "unit": "8px",
+                        "element-gap": "16px"
+                    },
+                    "fontFamily": {
+                        "poppins": ["Poppins", "sans-serif"],
+                        "inter": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "h3": ["Poppins"],
+                        "h1": ["Poppins"],
+                        "h2": ["Poppins"],
+                        "button": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "label-sm": ["14px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "h3": ["24px", { "lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "500" }],
+                        "h1": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "h2": ["32px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "button": ["16px", { "lineHeight": "1", "letterSpacing": "0.01em", "fontWeight": "600" }]
+                    },
+                    "animation": {
+                        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                        "float": "float 6s ease-in-out infinite",
+                    },
+                    "keyframes": {
+                        "float": {
+                            "0%, 100%": { transform: "translateY(0px)" },
+                            "50%": { transform: "translateY(-10px)" },
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&family=Cairo:wght@400;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Daleel.styles.css" asp-append-version="true" />
+</head>
+<body class="bg-white dark:bg-[#0A192F] font-body-md text-slate-900 dark:text-white transition-colors duration-300">
+    <header
+        class="bg-white/80 dark:bg-[#0A192F]/80 backdrop-blur-md border-b border-slate-200/50 dark:border-white/10 fixed w-full top-0 z-50 shadow-[0px_10px_30px_rgba(29,49,102,0.08)] dark:shadow-[0px_10px_30px_rgba(0,0,0,0.4)] transition-all duration-300"
+        id="main-header">
+        <div class="max-w-[1440px] mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
+            <a asp-controller="Home" asp-action="Index" class="shrink-0">
+                <img src="~/assets/Logo/Daleel.png" id="header-logo"
+                    class="h-9 sm:h-[54px] transition-all duration-300 brightness-100 invert-0 dark:brightness-0 dark:invert"
+                    alt="Daleel Global Vision" />
+            </a>
+            <!-- Desktop Nav -->
+            <nav class="hidden lg:flex items-center gap-6 font-['Inter'] font-medium text-[13px] tracking-tight">
+                <a class="text-slate-900 dark:text-white hover:text-[#00B2EC] transition-colors py-1 border-b-2 border-transparent hover:border-[#00B2EC]"
+                    asp-controller="Home" asp-action="Index">Home</a>
+                <a class="text-slate-900 dark:text-white hover:text-[#00B2EC] transition-colors py-1 border-b-2 border-transparent hover:border-[#00B2EC]"
+                    id="platform" asp-controller="Home" asp-action="Platforms">Platforms</a>
+                <a class="text-slate-900 dark:text-white hover:text-[#00B2EC] transition-colors py-1 border-b-2 border-transparent hover:border-[#00B2EC]"
+                    asp-controller="Home" asp-action="Shop">Shop</a>
+                <a class="text-slate-900 dark:text-white hover:text-[#00B2EC] transition-colors py-1 border-b-2 border-transparent hover:border-[#00B2EC]"
+                    asp-controller="Home" asp-action="Trust">Trust & Governance</a>
+                <a class="text-slate-900 dark:text-white hover:text-[#00B2EC] transition-colors py-1 border-b-2 border-transparent hover:border-[#00B2EC]"
+                    asp-controller="Home" asp-action="Partners">Partners</a>
+                <a class="text-slate-900 dark:text-white hover:text-[#00B2EC] transition-colors py-1 border-b-2 border-transparent hover:border-[#00B2EC]"
+                    asp-controller="Home" asp-action="About">About Us</a>
+                <a class="text-slate-900 dark:text-white hover:text-[#00B2EC] transition-colors py-1 border-b-2 border-transparent hover:border-[#00B2EC]"
+                    asp-controller="Home" asp-action="Contact">Contact Us</a>
+            </nav>
+
+            <!-- Right Actions -->
+            <div class="flex items-center gap-3">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" onclick="toggleTheme()"
+                    class="text-slate-500 dark:text-slate-400 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 transition-all hover:border-[#00B2EC] dark:hover:border-[#00B2EC] flex items-center justify-center">
+                    <span id="theme-icon" class="material-symbols-outlined text-[20px]">dark_mode</span>
+                </button>
+
+                <!-- RTL/LTR Toggle -->
+                <button id="lang-toggle" onclick="toggleDirection()"
+                    class="text-slate-500 dark:text-slate-400 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold tracking-wide transition-all hover:border-[#00B2EC] dark:hover:border-[#00B2EC]">
+                    عربي
+                </button>
+
+                <!-- CTA -->
+                <button
+                    class="hidden sm:block bg-[#00B2EC] text-white px-5 py-2.5 rounded-lg font-['Inter'] font-semibold text-sm shadow-sm active:scale-95 duration-150 transition-all hover:shadow-lg hover:shadow-[#00B2EC]/20">
+                    Get Started
+                </button>
+                <!-- Mobile Menu Toggle -->
+                <button id="mobile-menu-btn" onclick="document.getElementById('mobile-nav').classList.toggle('hidden')"
+                    class="lg:hidden p-2 text-brand-navy dark:text-white hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors">
+                    <span class="material-symbols-outlined text-[28px]">menu</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Dropdown -->
+        <div id="mobile-nav"
+            class="hidden lg:hidden bg-white dark:bg-[#0A192F] border-t border-slate-100 dark:border-slate-800 shadow-lg">
+            <nav class="max-w-[1440px] mx-auto px-6 py-4 flex flex-col gap-1 font-['Inter'] font-medium text-sm">
+                <a class="text-brand-navy dark:text-white hover:text-[#00B2EC] hover:bg-slate-50 dark:hover:bg-slate-800/50 px-4 py-3 rounded-lg transition-colors"
+                    asp-controller="Home" asp-action="Index">Home</a>
+                <a class="text-brand-navy dark:text-white hover:text-[#00B2EC] hover:bg-slate-50 dark:hover:bg-slate-800/50 px-4 py-3 rounded-lg transition-colors"
+                    asp-controller="Home" asp-action="Platforms">Platforms</a>
+                <a class="text-brand-navy dark:text-white hover:text-[#00B2EC] hover:bg-slate-50 dark:hover:bg-slate-800/50 px-4 py-3 rounded-lg transition-colors"
+                    asp-controller="Home" asp-action="Shop">Shop</a>
+                <a class="text-brand-navy dark:text-white hover:text-[#00B2EC] hover:bg-slate-50 dark:hover:bg-slate-800/50 px-4 py-3 rounded-lg transition-colors"
+                    asp-controller="Home" asp-action="Trust">Trust & Governance</a>
+                <a class="text-brand-navy dark:text-white hover:text-[#00B2EC] hover:bg-slate-50 dark:hover:bg-slate-800/50 px-4 py-3 rounded-lg transition-colors"
+                    asp-controller="Home" asp-action="Partners">Partners</a>
+                <a class="text-brand-navy dark:text-white hover:text-[#00B2EC] hover:bg-slate-50 dark:hover:bg-slate-800/50 px-4 py-3 rounded-lg transition-colors"
+                    asp-controller="Home" asp-action="About">About Us</a>
+                <a class="text-brand-navy dark:text-white hover:text-[#00B2EC] hover:bg-slate-50 dark:hover:bg-slate-800/50 px-4 py-3 rounded-lg transition-colors"
+                    asp-controller="Home" asp-action="Contact">Contact Us</a>
+            </nav>
+        </div>
+    </header>
+    <main role="main" class="pb-3 w-full">
+        @RenderBody()
+    </main>
+
+    <footer class="relative bg-white dark:bg-[#0A192F] overflow-hidden transition-colors duration-300">
+        <div class="w-full h-px bg-gradient-to-r from-transparent via-[#00B2EC]/30 to-transparent"></div>
+
+        <div class="max-w-[1440px] mx-auto px-6 sm:px-8 pt-16 sm:pt-20 pb-8">
+            <div class="grid grid-cols-2 md:grid-cols-12 gap-10 sm:gap-12 mb-16 text-start">
+                <div class="col-span-2 md:col-span-4" data-animate="fade-up" data-delay="1">
+                    <div class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-4">
+                        <img src="~/assets/Logo/Daleel.png"
+                            class="w-[150px] transition-all duration-300 dark:brightness-0 dark:invert"
+                            alt="Daleel Global Vision">
+                    </div>
+                    <p class="font-['Inter'] text-sm leading-relaxed text-brand-navy/60 dark:text-white/60 max-w-xs mb-8">
+                        Empowering global strategy through precision intelligence.
+                        Navigate complexity with confidence.
+                    </p>
+                    <div class="flex gap-3">
+                        <div class="relative group inline-flex items-center">
+    <div class="relative z-30 w-10 h-10 rounded-xl bg-brand-navy/5 dark:bg-white/5 border border-brand-navy/10 dark:border-white/10 flex items-center justify-center text-brand-navy/60 dark:text-white/60 group-hover:text-white group-hover:bg-[#00B2EC] group-hover:border-[#00B2EC] transition-all duration-500 cursor-pointer shadow-sm">
+        <span class="material-symbols-outlined text-[20px] group-hover:rotate-12 transition-transform">share</span>
+    </div>
+
+    <div class="absolute ltr:left-0 rtl:right-0 z-20 flex items-center bg-white dark:bg-[#0A192F] border border-slate-200 dark:border-slate-800 rounded-xl px-2 h-10 w-10 group-hover:w-48 opacity-0 group-hover:opacity-100 group-hover:ltr:translate-x-12 group-hover:rtl:-translate-x-12 transition-all duration-500 ease-out overflow-hidden shadow-xl">
+        <div class="flex items-center gap-4 ps-2">
+            <a asp-controller="Home" asp-action="Soon" class="text-slate-400 hover:text-[#1877F2] transition-all hover:scale-110">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" /></svg>
+            </a>
+            <a asp-controller="Home" asp-action="Soon" class="text-slate-400 hover:text-[#E4405F] transition-all hover:scale-110">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+            </a>
+            <a asp-controller="Home" asp-action="Soon" class="text-slate-400 hover:text-[#0A66C2] transition-all hover:scale-110">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" /></svg>
+            </a>
+            <a asp-controller="Home" asp-action="Soon" class="text-slate-400 hover:text-black dark:hover:text-white transition-all hover:scale-110">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+            </a>
+        </div>
+    </div>
+</div>
+                        <a asp-controller="Home" asp-action="Soon"
+                            class="w-10 h-10 rounded-xl bg-brand-navy/5 dark:bg-white/5 border border-brand-navy/10 dark:border-white/10 flex items-center justify-center text-brand-navy/60 dark:text-white/60 hover:text-[#00B2EC] hover:border-[#00B2EC]/30 hover:bg-[#00B2EC]/5 dark:hover:text-[#00B2EC] transition-all duration-300">
+                            <span class="material-symbols-outlined text-[18px]">mail</span>
+                        </a>
+                        <a asp-controller="Home" asp-action="Soon"
+                            class="w-10 h-10 rounded-xl bg-brand-navy/5 dark:bg-white/5 border border-brand-navy/10 dark:border-white/10 flex items-center justify-center text-brand-navy/60 dark:text-white/60 hover:text-[#00B2EC] hover:border-[#00B2EC]/30 hover:bg-[#00B2EC]/5 dark:hover:text-[#00B2EC] transition-all duration-300">
+                            <span class="material-symbols-outlined text-[18px]">call</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2" data-animate="fade-up" data-delay="2">
+                    <h4
+                        class="font-['Inter'] text-xs font-semibold text-brand-navy/70 dark:text-white/80 uppercase tracking-widest mb-6">
+                        Platform</h4>
+                    <ul class="space-y-3 font-['Inter'] text-sm">
+                        <li><a asp-controller="Home" asp-action="Soon"
+                                class="text-brand-navy/60 dark:text-white/50 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors duration-200">Solutions</a>
+                        </li>
+                        <li><a asp-controller="Home" asp-action="Soon"
+                                class="text-brand-navy/60 dark:text-white/50 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors duration-200">Intelligence
+                                Feed</a></li>
+                        <li><a asp-controller="Home" asp-action="Soon"
+                                class="text-brand-navy/60 dark:text-white/50 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors duration-200">Risk
+                                Dashboard</a></li>
+                        <li><a asp-controller="Home" asp-action="Soon"
+                                class="text-brand-navy/60 dark:text-white/50 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors duration-200">API
+                                Access</a></li>
+                        <li><a asp-controller="Home" asp-action="Soon"
+                                class="text-brand-navy/60 dark:text-white/50 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors duration-200">Integrations</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="md:col-span-2" data-animate="fade-up" data-delay="3">
+                    <h4
+                        class="font-['Inter'] text-xs font-semibold text-brand-navy/70 dark:text-white/80 uppercase tracking-widest mb-6">
+                        Company</h4>
+                    <ul class="space-y-3 font-['Inter'] text-sm">
+                        <li><a asp-controller="Home" asp-action="About"
+                                class="text-brand-navy/60 dark:text-white/50 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors duration-200">About
+                                Us</a></li>
+                        <li><a asp-controller="Home" asp-action="Trust"
+                                class="text-brand-navy/60 dark:text-white/50 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors duration-200">Trust
+                                & Governance</a>
+                        </li>
+                        <li><a asp-controller="Home" asp-action="Partners"
+                                class="text-brand-navy/60 dark:text-white/50 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors duration-200">Partners</a>
+                        </li>
+                        <li><a asp-controller="Home" asp-action="Contact"
+                                class="text-brand-navy/60 dark:text-white/50 hover:text-[#00B2EC] dark:hover:text-[#00B2EC] transition-colors duration-200">Contact
+                                Us</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-span-2 md:col-span-4" data-animate="fade-up" data-delay="4">
+                    <h4
+                        class="font-['Inter'] text-xs font-semibold text-brand-navy/70 dark:text-white/80 uppercase tracking-widest mb-6">
+                        Stay Informed</h4>
+                    <p class="font-['Inter'] text-sm text-brand-navy/60 dark:text-white/60 mb-4">Weekly intelligence
+                        briefing delivered to your inbox.</p>
+                    <div class="flex gap-2">
+                        <input type="email" placeholder="Enter your email"
+                            class="flex-1 bg-brand-navy/5 dark:bg-white/5 border border-brand-navy/10 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-brand-navy dark:text-white placeholder:text-brand-navy/50 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#00B2EC]/40 focus:border-[#00B2EC]/40 font-['Inter'] transition-all" />
+                        <button
+                            class="bg-[#00B2EC] text-white px-5 py-3 rounded-xl font-['Inter'] font-semibold text-sm hover:shadow-lg hover:shadow-[#00B2EC]/20 active:scale-95 transition-all duration-200 shrink-0">
+                            Subscribe
+                        </button>
+                    </div>
+                    <p class="font-['Inter'] text-[11px] text-brand-navy/40 dark:text-white/30 mt-3">No spam. Unsubscribe
+                        anytime.</p>
+                </div>
+
+            </div>
+
+            <div class="w-full h-px bg-brand-navy/5 dark:bg-white/10 mb-8"></div>
+
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p class="font-['Inter'] text-xs text-brand-navy/50 dark:text-white/40">
+                    &copy; @DateTime.Now.Year Daleel Global Vision. All rights reserved.
+                </p>
+                
+            </div>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
