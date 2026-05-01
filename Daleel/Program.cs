@@ -1,7 +1,25 @@
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
+using Daleel.BAL.Services.Interfaces;
+using Daleel.BAL.Services;
+using Daleel.Hubs;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization();
+
+builder.Services.AddHttpClient("Gemini", client =>
+{
+    client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
+    client.Timeout = TimeSpan.FromSeconds(60);
+});
+
+builder.Services.AddScoped<IGeminiService, GeminiService>();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -14,7 +32,27 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseWebSockets();
 app.UseRouting();
+
+var supportedCultures = new[]
+{
+    new CultureInfo("ar"),
+    new CultureInfo("en")
+};
+
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+};
+
+// Cookie provider must be FIRST so it takes priority over browser accept-language
+localizationOptions.RequestCultureProviders.Insert(0,
+    new CookieRequestCultureProvider());
+
+app.UseRequestLocalization(localizationOptions);
 
 app.UseAuthorization();
 
@@ -24,6 +62,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
+app.MapHub<ChatHub>("/chathub");
 
 
 app.Run();

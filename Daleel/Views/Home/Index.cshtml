@@ -2,10 +2,40 @@
     ViewData["Title"] = "Home Page";
 }
 
-<section id="main-scrolly" class="relative bg-slate-50 dark:bg-[#0B1220] transition-colors duration-300"
-    style="height: 800vh;">
+@functions {
+    public string ToLocalNumerals(string input)
+    {
+        if (System.Threading.Thread.CurrentThread.CurrentCulture.Name.StartsWith("ar"))
+        {
+            string replaced = input.Replace("M", " مليون")
+                                   .Replace("K", " ألف")
+                                   .Replace("min", " دقائق")
+                                   .Replace("-in-", " في ")
+                                   .Replace('0', '٠')
+                                   .Replace('1', '١')
+                                   .Replace('2', '٢')
+                                   .Replace('3', '٣')
+                                   .Replace('4', '٤')
+                                   .Replace('5', '٥')
+                                   .Replace('6', '٦')
+                                   .Replace('7', '٧')
+                                   .Replace('8', '٨')
+                                   .Replace('9', '٩');
+                                   
+            if (replaced.EndsWith("+"))
+            {
+                replaced = "+" + replaced.TrimEnd('+');
+            }
+            
+            return replaced;
+        }
+        return input;
+    }
+}
 
-    <div class="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+<section id="main-scrolly" class="relative bg-slate-50 dark:bg-[#0B1220] transition-colors duration-300 min-h-screen overflow-hidden group">
+
+    <div class="relative min-h-screen w-full flex items-center justify-center overflow-hidden py-24">
 
         <!-- Three.js 3D Particle Background -->
         <canvas id="scrolly-canvas" class="absolute inset-0 w-full h-full z-0"></canvas>
@@ -16,51 +46,59 @@
                 class="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-[#00B2EC]/20 rounded-full blur-[120px] transition-all duration-700">
             </div>
             <div id="glow-2"
-                class="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-[#EF4123]/12 rounded-full blur-[100px] transition-all duration-700">
+                class="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-[#10B981]/12 rounded-full blur-[100px] transition-all duration-700">
             </div>
         </div>
 
         <!-- Step Progress Indicator (Left Side) -->
         <div class="hidden sm:flex absolute start-8 top-1/2 -translate-y-1/2 flex-col gap-3 z-50">
-            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
-                <div class="step-fill w-full h-0 bg-[#00B2EC] transition-all duration-100"></div>
+            <div class="step-dot cursor-pointer w-2 h-8 bg-brand-navy/10 dark:bg-white/10 rounded-full overflow-hidden transition-all hover:bg-brand-navy/30 dark:hover:bg-white/30" data-slide="0">
+                <div class="step-fill w-full h-0 bg-[#00B2EC] transition-all duration-500"></div>
             </div>
-            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
-                <div class="step-fill w-full h-0 bg-[#00B2EC] transition-all duration-100"></div>
+            <div class="step-dot cursor-pointer w-2 h-8 bg-brand-navy/10 dark:bg-white/10 rounded-full overflow-hidden transition-all hover:bg-brand-navy/30 dark:hover:bg-white/30" data-slide="1">
+                <div class="step-fill w-full h-0 bg-[#00B2EC] transition-all duration-500"></div>
             </div>
-            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
-                <div class="step-fill w-full h-0 bg-[#EF4123] transition-all duration-100"></div>
+            <div class="step-dot cursor-pointer w-2 h-8 bg-brand-navy/10 dark:bg-white/10 rounded-full overflow-hidden transition-all hover:bg-brand-navy/30 dark:hover:bg-white/30" data-slide="2">
+                <div class="step-fill w-full h-0 bg-[#10B981] transition-all duration-500"></div>
             </div>
-            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
-                <div class="step-fill w-full h-0 bg-[#F9A01B] transition-all duration-100"></div>
+            <div class="step-dot cursor-pointer w-2 h-8 bg-brand-navy/10 dark:bg-white/10 rounded-full overflow-hidden transition-all hover:bg-brand-navy/30 dark:hover:bg-white/30" data-slide="3">
+                <div class="step-fill w-full h-0 bg-[#F9A01B] transition-all duration-500"></div>
             </div>
-            <div class="step-dot w-1 h-6 bg-brand-navy/20 dark:bg-white/30 rounded-full overflow-hidden">
-                <div class="step-fill w-full h-0 bg-[#00B2EC] transition-all duration-100"></div>
+            <div class="step-dot cursor-pointer w-2 h-8 bg-brand-navy/10 dark:bg-white/10 rounded-full overflow-hidden transition-all hover:bg-brand-navy/30 dark:hover:bg-white/30" data-slide="4">
+                <div class="step-fill w-full h-0 bg-[#00B2EC] transition-all duration-500"></div>
             </div>
         </div>
 
+        <!-- Slider Controls (Right Side / Arrows) -->
+        <div class="flex absolute end-4 sm:end-8 top-1/2 -translate-y-1/2 z-50 flex-col gap-2 sm:gap-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+            <button id="slider-prev" class="p-2 rounded-full bg-brand-navy/5 dark:bg-white/5 backdrop-blur-md border border-brand-navy/10 dark:border-white/10 text-brand-navy dark:text-white hover:bg-[#00B2EC] hover:text-white transition-all shadow-lg focus:outline-none">
+                <span class="material-symbols-outlined text-lg">keyboard_arrow_up</span>
+            </button>
+            <button id="slider-next" class="p-2 rounded-full bg-brand-navy/5 dark:bg-white/5 backdrop-blur-md border border-brand-navy/10 dark:border-white/10 text-brand-navy dark:text-white hover:bg-[#00B2EC] hover:text-white transition-all shadow-lg focus:outline-none">
+                <span class="material-symbols-outlined text-lg">keyboard_arrow_down</span>
+            </button>
+        </div>
+
         <!-- Content Layer -->
-        <div class="relative w-full max-w-6xl px-4 sm:px-8 z-10">
+        <div class="relative w-full max-w-6xl px-4 sm:px-8 z-10 h-[500px] flex items-center">
 
             <!-- ═══ Slide 0: Welcome ═══ -->
             <div class="story-slide opacity-0 absolute inset-0 flex flex-col items-center text-center justify-center translate-y-10 transition-all duration-700"
                 data-index="0">
-                <span class="text-[#00B2EC]  font-bold tracking-[0.2em] text-xs uppercase mb-4">Welcome to Daleel</span>
+                <span class="text-[#00B2EC]  font-bold tracking-[0.2em] rtl:tracking-normal text-xs uppercase mb-4">@SharedLocalizer["WelcomeToDaleel"]</span>
                 <h1
                     class="font-['Poppins'] text-3xl sm:text-5xl md:text-7xl text-brand-navy dark:text-white font-extrabold leading-tight">
-                    Global Vision.<br /><span class="text-gradient dark:text-white/70">Local Precision.</span>
+                    @SharedLocalizer["GlobalVision"]<br /><span class="text-gradient dark:text-white/70">@SharedLocalizer["LocalPrecision"]</span>
                 </h1>
                 <p
-                    class="mt-4 sm:mt-6 text-brand-navy/60 dark:text-white/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-                    Navigate the complexities of international trade and information with the world's most advanced
-                    intelligence platform.
+                    class="mt-4 sm:mt-6 text-slate-700 dark:text-white/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+                    @SharedLocalizer["HeroDescription"]
                 </p>
                 <!-- Scroll Indicator -->
-                <div class="mt-12 flex flex-col items-center gap-2 animate-bounce">
-                    <span class="text-brand-navy/30 dark:text-white/30 text-xs uppercase tracking-widest">Scroll to
-                        explore</span>
-                    <span class="material-symbols-outlined text-brand-navy/30 dark:text-white/30">expand_more</span>
-                </div>
+                <a href="#vision" class="mt-12 flex flex-col items-center gap-2 text-[#10B981] hover:text-[#059669] transition-colors group cursor-pointer animate-bounce">
+                    <span class="text-xs uppercase tracking-widest rtl:tracking-normal font-semibold group-hover:scale-105 transition-transform">@SharedLocalizer["ScrollToExplore"]</span>
+                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">expand_more</span>
+                </a>
             </div>
 
             <!-- ═══ Slide 1: Data Harvest ═══ -->
@@ -70,35 +108,34 @@
                     <!-- Start: Content -->
                     <div class="text-start">
                         <div
-                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00B2EC]/10 text-[#00B2EC] dark:text-white/70 text-xs font-semibold tracking-wide mb-4 sm:mb-6">
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00B2EC]/10 text-[#00B2EC] dark:text-white/70 text-xs font-semibold tracking-wide rtl:tracking-normal mb-4 sm:mb-6">
                             <span class="material-symbols-outlined text-[14px]"
                                 style="font-variation-settings: 'FILL' 1;">sensors</span>
-                            Data Intelligence
+                            @SharedLocalizer["DataIntelligence"]
                         </div>
                         <h2
                             class="font-['Poppins'] text-xl sm:text-3xl md:text-5xl dark:text-white/70 text-brand-navy font-bold leading-tight mb-3 sm:mb-6">
-                            10M+ Sources.<br /><span class="text-brand-navy/50 dark:text-white/65">One Truth.</span>
+                            @SharedLocalizer["TenMillionSources"]<br /><span class="text-slate-600 dark:text-white/65">@SharedLocalizer["OneTruth"]</span>
                         </h2>
                         <p
-                            class="text-brand-navy/60 dark:text-white/70 text-sm sm:text-lg leading-relaxed mb-6 sm:mb-8">
-                            We harvest real-time data from 140 jurisdictions — news feeds, regulatory filings,
-                            trade logs, and satellite imagery — turning raw information into strategic advantages.
+                            class="text-slate-700 dark:text-white/70 text-sm sm:text-lg leading-relaxed mb-6 sm:mb-8">
+                            @SharedLocalizer["HarvestDescription"]
                         </p>
                         <div class="grid grid-cols-3 gap-4 sm:gap-6 dark:text-white/70">
                             <div>
-                                <p class="text-brand-navy dark:text-white font-bold text-2xl">140+</p>
-                                <p class="text-brand-navy/40 dark:text-white/40 text-xs uppercase tracking-widest">
-                                    Countries</p>
+                                <p class="text-brand-navy dark:text-white font-bold text-2xl" dir="auto">@ToLocalNumerals("140+")</p>
+                                <p class="text-slate-500 dark:text-white/40 text-xs uppercase tracking-widest rtl:tracking-normal">
+                                    @SharedLocalizer["Countries"]</p>
                             </div>
                             <div>
-                                <p class="text-brand-navy dark:text-white font-bold text-2xl">24/7</p>
-                                <p class="text-brand-navy/40 dark:text-white/40 text-xs uppercase tracking-widest">
-                                    Monitoring</p>
+                                <p class="text-brand-navy dark:text-white font-bold text-2xl" dir="auto">@ToLocalNumerals("24/7")</p>
+                                <p class="text-slate-500 dark:text-white/40 text-xs uppercase tracking-widest rtl:tracking-normal">
+                                    @SharedLocalizer["Monitoring"]</p>
                             </div>
                             <div>
-                                <p class="text-brand-navy dark:text-white font-bold text-2xl">100%</p>
-                                <p class="text-brand-navy/40 dark:text-white/40 text-xs uppercase tracking-widest">
-                                    Verified</p>
+                                <p class="text-brand-navy dark:text-white font-bold text-2xl" dir="auto">@ToLocalNumerals("100%")</p>
+                                <p class="text-slate-500 dark:text-white/40 text-xs uppercase tracking-widest rtl:tracking-normal">
+                                    @SharedLocalizer["Verified"]</p>
                             </div>
                         </div>
                     </div>
@@ -108,7 +145,7 @@
                             <img src="~/assets/images/globe_network.png" alt="Global intelligence network"
                                 class="w-full max-w-[140px] sm:max-w-xs md:max-w-md rounded-2xl opacity-80 shadow-2xl shadow-[#00B2EC]/10" />
                             <div
-                                class="absolute inset-0 rounded-2xl bg-gradient-to-t from-white/80 dark:from-brand-navy/60 to-transparent">
+                                class="absolute inset-0 rounded-2xl bg-gradient-to-t from-white/40 dark:from-brand-navy/40 to-transparent">
                             </div>
                         </div>
                     </div>
@@ -123,50 +160,46 @@
                     <div class="flex items-center justify-center order-2 md:order-none mt-4 sm:mt-8 md:mt-0">
                         <div class="relative">
                             <img src="~/assets/images/ai_neural.png" alt="AI neural fusion engine"
-                                class="w-full max-w-[140px] sm:max-w-xs md:max-w-md rounded-2xl opacity-80 shadow-2xl shadow-[#EF4123]/10" />
+                                class="w-full max-w-[140px] sm:max-w-xs md:max-w-md rounded-2xl opacity-80 shadow-2xl shadow-[#10B981]/10" />
                             <div
-                                class="absolute inset-0 rounded-2xl bg-gradient-to-t from-white/80 dark:from-brand-navy/60 to-transparent">
+                                class="absolute inset-0 rounded-2xl bg-gradient-to-t from-white/40 dark:from-brand-navy/40 to-transparent">
                             </div>
                         </div>
                     </div>
                     <!-- Right: Content -->
                     <div class="text-start order-1">
                         <div
-                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#EF4123]/10 text-[#EF4123] text-xs font-semibold tracking-wide mb-4 sm:mb-6">
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#10B981]/10 text-[#10B981] text-xs font-semibold tracking-wide rtl:tracking-normal mb-4 sm:mb-6">
                             <span class="material-symbols-outlined text-[14px]"
                                 style="font-variation-settings: 'FILL' 1;">psychology</span>
-                            Neural Fusion Engine
+                            @SharedLocalizer["NeuralFusionEngine"]
                         </div>
                         <h2
                             class="font-['Poppins'] text-xl sm:text-3xl md:text-5xl text-brand-navy dark:text-white font-bold leading-tight mb-3 sm:mb-6">
-                            AI That Sees<br /><span class="text-gradient-red">What You Can't.</span>
+                            @SharedLocalizer["AIThatSees"]<br /><span class="text-gradient-red">@SharedLocalizer["WhatYouCant"]</span>
                         </h2>
                         <p
-                            class="text-brand-navy/60 dark:text-white/70 text-sm sm:text-lg leading-relaxed mb-6 sm:mb-8">
-                            Our proprietary Neural Fusion Engine cross-correlates geopolitical events with trade flows,
-                            sentiment shifts, and macro indicators — uncovering hidden patterns invisible to the human
-                            eye.
+                            class="text-slate-700 dark:text-white/70 text-sm sm:text-lg leading-relaxed mb-6 sm:mb-8">
+                            @SharedLocalizer["AIDescription"]
                         </p>
                         <!-- Mini progress bars -->
                         <div class="space-y-4 max-w-sm">
                             <div>
                                 <div class="flex justify-between mb-1">
-                                    <span class="text-brand-navy/50 dark:text-white/65 text-xs">Pattern
-                                        Recognition</span>
-                                    <span class="text-[#EF4123] text-xs font-bold">94%</span>
+                                    <span class="text-slate-600 dark:text-white/65 text-xs">@SharedLocalizer["PatternRecognition"]</span>
+                                    <span class="text-[#10B981] text-xs font-bold" dir="auto">@ToLocalNumerals("94%")</span>
                                 </div>
                                 <div
                                     class="w-full h-1.5 rounded-full bg-brand-navy/10 dark:bg-white/10 overflow-hidden">
                                     <div
-                                        class="h-full rounded-full bg-gradient-to-r from-[#EF4123] to-[#F9A01B] w-[94%]">
+                                        class="h-full rounded-full bg-gradient-to-r from-[#10B981] to-[#F9A01B] w-[94%]">
                                     </div>
                                 </div>
                             </div>
                             <div>
                                 <div class="flex justify-between mb-1">
-                                    <span class="text-brand-navy/50 dark:text-white/65 text-xs">Sentiment
-                                        Analysis</span>
-                                    <span class="text-[#F9A01B] text-xs font-bold">87%</span>
+                                    <span class="text-slate-600 dark:text-white/65 text-xs">@SharedLocalizer["SentimentAnalysis"]</span>
+                                    <span class="text-[#F9A01B] text-xs font-bold" dir="auto">@ToLocalNumerals("87%")</span>
                                 </div>
                                 <div
                                     class="w-full h-1.5 rounded-full bg-brand-navy/10 dark:bg-white/10 overflow-hidden">
@@ -177,8 +210,8 @@
                             </div>
                             <div>
                                 <div class="flex justify-between mb-1">
-                                    <span class="text-brand-navy/50 dark:text-white/65 text-xs">Risk Correlation</span>
-                                    <span class="text-[#00B2EC] text-xs font-bold">91%</span>
+                                    <span class="text-slate-600 dark:text-white/65 text-xs">@SharedLocalizer["RiskCorrelation"]</span>
+                                    <span class="text-[#00B2EC] text-xs font-bold" dir="auto">@ToLocalNumerals("91%")</span>
                                 </div>
                                 <div
                                     class="w-full h-1.5 rounded-full bg-brand-navy/10 dark:bg-white/10 overflow-hidden">
@@ -197,33 +230,32 @@
                     <!-- Start: Content -->
                     <div class="text-start">
                         <div
-                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F9A01B]/10 text-[#F9A01B] text-xs font-semibold tracking-wide mb-4 sm:mb-6">
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F9A01B]/10 text-[#F9A01B] text-xs font-semibold tracking-wide rtl:tracking-normal mb-4 sm:mb-6">
                             <span class="material-symbols-outlined text-[14px]"
                                 style="font-variation-settings: 'FILL' 1;">dashboard</span>
-                            Strategic Command
+                            @SharedLocalizer["StrategicCommand"]
                         </div>
                         <h2
                             class="font-['Poppins'] text-xl sm:text-3xl md:text-5xl text-brand-navy dark:text-white font-bold leading-tight mb-3 sm:mb-6">
-                            Clarity From<br /><span class="text-[#F9A01B]">Complexity.</span>
+                            @SharedLocalizer["ClarityFrom"]<br /><span class="text-[#F9A01B]">@SharedLocalizer["Complexity"]</span>
                         </h2>
                         <p
-                            class="text-brand-navy/60 dark:text-white/70 text-sm sm:text-lg leading-relaxed mb-6 sm:mb-8">
-                            Our analysts distill fused intelligence into actionable strategic briefs — complete with
-                            scenario modeling, risk heat maps, and opportunity scoring — delivered in real time.
+                            class="text-slate-700 dark:text-white/70 text-sm sm:text-lg leading-relaxed mb-6 sm:mb-8">
+                            @SharedLocalizer["DashboardDescription"]
                         </p>
                         <!-- Mini dashboard stats -->
                         <div class="grid grid-cols-2 gap-4 max-w-sm">
                             <div class="glass-card rounded-xl p-4 text-center">
-                                <p class="font-['Poppins'] text-2xl font-bold text-emerald-400">▲ 12.4%</p>
+                                <p class="font-['Poppins'] text-2xl font-bold text-emerald-400" dir="auto">▲ @ToLocalNumerals("12.4%")</p>
                                 <p
-                                    class="text-brand-navy/40 dark:text-white/40 text-[10px] uppercase tracking-wider mt-1">
-                                    Opportunity Score</p>
+                                    class="text-slate-500 dark:text-white/40 text-[10px] uppercase tracking-wider rtl:tracking-normal mt-1">
+                                    @SharedLocalizer["OpportunityScore"]</p>
                             </div>
                             <div class="glass-card rounded-xl p-4 text-center">
-                                <p class="font-['Poppins'] text-2xl font-bold text-[#EF4123]">▼ 3.1%</p>
+                                <p class="font-['Poppins'] text-2xl font-bold text-[#10B981]" dir="auto">▼ @ToLocalNumerals("3.1%")</p>
                                 <p
-                                    class="text-brand-navy/40 dark:text-white/40 text-[10px] uppercase tracking-wider mt-1">
-                                    Risk Exposure</p>
+                                    class="text-slate-500 dark:text-white/40 text-[10px] uppercase tracking-wider rtl:tracking-normal mt-1">
+                                    @SharedLocalizer["RiskExposure"]</p>
                             </div>
                         </div>
                     </div>
@@ -233,7 +265,7 @@
                             <img src="~/assets/images/data_dashboard.png" alt="Strategic analytics dashboard"
                                 class="w-full max-w-[160px] sm:max-w-xs md:max-w-md rounded-2xl opacity-80 shadow-2xl shadow-[#F9A01B]/10" />
                             <div
-                                class="absolute inset-0 rounded-2xl bg-gradient-to-t from-white/80 dark:from-brand-navy/60 to-transparent">
+                                class="absolute inset-0 rounded-2xl bg-gradient-to-t from-white/40 dark:from-brand-navy/40 to-transparent">
                             </div>
                         </div>
                     </div>
@@ -250,24 +282,23 @@
                 </div>
                 <h2
                     class="font-['Poppins'] text-2xl sm:text-4xl md:text-6xl text-brand-navy dark:text-white font-bold mb-3 sm:mb-4">
-                    Ready to Lead?</h2>
-                <p class="text-brand-navy/50 dark:text-white/65 text-sm sm:text-lg max-w-xl mb-6 sm:mb-10 px-4">
-                    Join 150,000+ trade partners across 140 jurisdictions who trust Daleel to power their global
-                    strategy.
+                    @SharedLocalizer["ReadyToLead"]</h2>
+                <p class="text-slate-700 dark:text-white/65 text-sm sm:text-lg max-w-xl mb-6 sm:mb-10 px-4">
+                    @SharedLocalizer["ReadyToLeadDesc"]
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <button
+                    <a asp-controller="Home" asp-action="Platforms"
                         class="relative group overflow-hidden bg-gradient-to-r from-[#00B2EC] to-[#008dbb] text-white px-8 py-3 rounded-2xl font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-500/25">
-                        <span class="relative z-10">Explore Solutions</span>
+                        <span class="relative z-10">@SharedLocalizer["ExploreSolutions"]</span>
                         <div
                             class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                         </div>
-                    </button>
+                    </a>
 
-                    <button
-                        class="backdrop-blur-md bg-brand-navy/5 dark:bg-white/5 border border-brand-navy/10 dark:border-white/10 text-brand-navy dark:text-white px-8 py-3 rounded-2xl font-semibold transition-all hover:bg-brand-navy/10 dark:hover:bg-white/10 active:scale-95">
-                        Download Briefing
-                    </button>
+                    <a asp-controller="Home" asp-action="Contact"
+                        class="backdrop-blur-md bg-brand-navy/5 dark:bg-white/5 border border-brand-navy/10 dark:border-white/10 text-brand-navy dark:text-white px-8 py-3 rounded-2xl font-semibold transition-all hover:bg-brand-navy/10 dark:hover:bg-white/10 active:scale-95 text-center">
+                        @SharedLocalizer["DownloadBriefing"]
+                    </a>
                 </div>
             </div>
 
@@ -275,7 +306,7 @@
     </div><!-- /sticky -->
 </section>
 
-<section class="relative bg-[#F8F9FA] dark:bg-[#060D1A] overflow-hidden py-20 sm:py-28 transition-colors duration-300">
+<section id="vision" class="relative bg-[#F8F9FA] dark:bg-[#060D1A] overflow-hidden py-20 sm:py-28 transition-colors duration-300">
 
     <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <div
@@ -292,71 +323,83 @@
                 class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#00B2EC] to-[#008dbb] text-white font-['Inter'] text-xs font-semibold tracking-wide shadow-sm">
                 <span class="material-symbols-outlined text-[14px]"
                     style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
-                Enterprise Grade Intelligence
+                @SharedLocalizer["EnterpriseGradeIntelligence"]
             </div>
 
             <h1
                 class="font-['Poppins'] text-[clamp(2.25rem,5vw,3.5rem)] font-extrabold leading-[1.1] tracking-tight text-brand-navy dark:text-white transition-colors duration-300">
-                Precision Strategy<br class="hidden lg:block" /> for the Global&nbsp;Market.
+                @SharedLocalizer["PrecisionStrategy"]<br class="hidden lg:block" /> @SharedLocalizer["ForTheGlobalMarket"]
             </h1>
 
             <p
                 class="font-['Inter'] text-lg leading-relaxed text-slate-500 dark:text-slate-400 max-w-xl transition-colors duration-300">
-                Daleel Global Vision provides the navigational clarity required to dominate complex international
-                landscapes through data-driven precision.
+                @SharedLocalizer["PrecisionStrategyDesc"]
             </p>
 
             <div class="flex flex-wrap gap-4 pt-2">
-                <button
-                    class="bg-[#00B2EC] text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base shadow-lg shadow-[#00B2EC]/20 hover:shadow-xl hover:shadow-[#00B2EC]/30 active:scale-95 transition-all duration-300">
-                    Explore Solutions
-                </button>
-                <button
-                    class="border border-brand-navy/20 dark:border-white/20 text-brand-navy dark:text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base hover:bg-brand-navy/5 dark:hover:bg-white/5 active:scale-95 transition-all duration-300">
-                    Watch Briefing
-                </button>
+                <a asp-controller="Home" asp-action="Platforms"
+                    class="bg-[#00B2EC] text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base shadow-lg shadow-[#00B2EC]/20 hover:shadow-xl hover:shadow-[#00B2EC]/30 active:scale-95 transition-all duration-300 text-center">
+                    @SharedLocalizer["ExploreSolutions"]
+                </a>
+                <a asp-controller="Home" asp-action="Contact"
+                    class="border border-brand-navy/20 dark:border-white/20 text-brand-navy dark:text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base hover:bg-brand-navy/5 dark:hover:bg-white/5 active:scale-95 transition-all duration-300 text-center">
+                    @SharedLocalizer["WatchBriefing"]
+                </a>
             </div>
         </div>
 
-        <div class="bg-white/70 dark:bg-[#0A192F]/70 backdrop-blur-xl border border-slate-200 dark:border-slate-800 shadow-lg rounded-2xl p-6 sm:p-8 transition-all duration-300"
-            data-animate="slide-end" data-delay="2">
-            <div class="space-y-6">
-                <div class="flex items-center justify-between">
-                    <h3
-                        class="font-['Poppins'] text-xl font-semibold text-brand-navy dark:text-white flex items-center gap-2.5">
-                        <span class="material-symbols-outlined text-[#00B2EC]"
-                            style="font-variation-settings: 'FILL' 1;">psychology</span>
-                        Global Insight AI
-                    </h3>
-                    <span class="inline-flex items-center gap-2 text-xs font-['Inter'] font-medium text-slate-400">
-                        <span class="relative flex h-2.5 w-2.5">
-                            <span
-                                class="absolute inline-flex h-full w-full rounded-full bg-[#00B2EC] opacity-75 animate-ping"></span>
-                            <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#00B2EC]"></span>
-                        </span>
-                        Online
-                    </span>
-                </div>
+        <div class="bg-white/70 dark:bg-[#0A192F]/70 backdrop-blur-xl border border-slate-200 dark:border-slate-800 shadow-lg rounded-2xl p-0 transition-all duration-300 flex flex-col overflow-hidden"
+            data-animate="slide-end" data-delay="2" style="max-height: 520px; min-height: 420px;">
 
-                <div class="relative">
-                    <input
-                        class="w-full bg-white dark:bg-[#112240] p-4 pe-14 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-[#00B2EC] outline-none text-brand-navy dark:text-white"
-                        placeholder="Analyze trade corridors..." type="text" />
-                    <button
-                        class="absolute end-3 top-1/2 -translate-y-1/2 p-2 bg-[#00B2EC] text-white rounded-lg hover:bg-[#00a0d6] transition-all">
-                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+            <!-- Chat Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                <h3 class="font-['Poppins'] text-lg font-semibold text-brand-navy dark:text-white flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-[#00B2EC]"
+                        style="font-variation-settings: 'FILL' 1;">psychology</span>
+                    @SharedLocalizer["GlobalInsightAI"]
+                </h3>
+                <span class="inline-flex items-center gap-2 text-xs font-['Inter'] font-medium text-slate-400">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75 animate-ping"></span>
+                        <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#10B981]"></span>
+                    </span>
+                    @SharedLocalizer["Online"]
+                </span>
+            </div>
+
+            <!-- Chat Messages Area -->
+            <div id="daleel-chat-messages" class="flex-1 overflow-y-auto px-5 py-4 space-y-1 scroll-smooth" style="min-height: 200px;">
+                <!-- Messages injected by JS -->
+            </div>
+
+            <!-- Quick Suggestions -->
+            <div id="daleel-chat-chips" class="flex flex-wrap gap-1.5 px-5 pb-2 shrink-0">
+                <button type="button" class="daleel-chat-chip px-3 py-1 rounded-full text-[11px] bg-slate-100 dark:bg-[#112240] text-slate-600 dark:text-slate-300 hover:bg-[#00B2EC] hover:text-white transition-all cursor-pointer"
+                    data-query="@SharedLocalizer["MarketVolatility"]">@SharedLocalizer["MarketVolatility"]</button>
+                <button type="button" class="daleel-chat-chip px-3 py-1 rounded-full text-[11px] bg-slate-100 dark:bg-[#112240] text-slate-600 dark:text-slate-300 hover:bg-[#00B2EC] hover:text-white transition-all cursor-pointer"
+                    data-query="@SharedLocalizer["SupplyChain"]">@SharedLocalizer["SupplyChain"]</button>
+            </div>
+
+            <!-- Chat Input -->
+            <form id="daleel-chat-form" class="px-4 pb-4 shrink-0">
+                <div class="relative flex items-center gap-2">
+                    <input id="daleel-chat-input"
+                        class="flex-1 bg-white dark:bg-[#112240] p-3.5 pe-14 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-[#00B2EC] outline-none text-brand-navy dark:text-white text-sm font-['Inter'] placeholder:text-slate-400"
+                        placeholder="@SharedLocalizer["AnalyzeTradeCorridors"]" type="text" autocomplete="off" />
+                    <button id="daleel-chat-send" type="submit"
+                        class="absolute end-14 top-1/2 -translate-y-1/2 p-2 bg-[#00B2EC] text-white rounded-lg hover:bg-[#00a0d6] active:scale-90 transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="material-symbols-outlined text-[18px] inline-block rtl:rotate-180">send</span>
+                    </button>
+                    <!-- Voice Button -->
+                    <button id="daleel-voice-btn" type="button"
+                        class="absolute end-2.5 top-1/2 -translate-y-1/2 p-2 bg-[#00B2EC] text-white rounded-lg hover:bg-[#00a0d6] active:scale-90 transition-all flex items-center justify-center"
+                        title="Voice Chat">
+                        <span class="voice-status-dot hidden absolute -top-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+                        <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">mic</span>
                     </button>
                 </div>
-
-                <div class="flex flex-wrap gap-2">
-                    <button
-                        class="px-3.5 py-1.5 rounded-full text-xs bg-slate-100 dark:bg-[#112240] text-slate-600 dark:text-slate-300 hover:bg-[#00B2EC] hover:text-white transition-all">Market
-                        Volatility</button>
-                    <button
-                        class="px-3.5 py-1.5 rounded-full text-xs bg-slate-100 dark:bg-[#112240] text-slate-600 dark:text-slate-300 hover:bg-[#00B2EC] hover:text-white transition-all">Supply
-                        Chain</button>
-                </div>
-            </div>
+                <p id="daleel-voice-status" class="text-[11px] text-center text-slate-400 font-['Inter'] mt-1.5 min-h-[16px]"></p>
+            </form>
         </div>
     </div>
 
@@ -370,11 +413,9 @@
                 </div>
 
                 <div class="relative z-10">
-                    <p
-                        class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300">
-                        10M+</p>
+                    <p class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300" dir="auto">@ToLocalNumerals("10M+")</p>
                     <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">
-                        Verified Articles</p>
+                        @SharedLocalizer["VerifiedArticles"]</p>
                 </div>
             </div>
 
@@ -384,11 +425,8 @@
                     class="absolute inset-0 bg-gradient-to-tr from-transparent via-[#00B2EC]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
                 </div>
                 <div class="relative z-10">
-                    <p
-                        class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300">
-                        150K+</p>
-                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">Trade
-                        Partners</p>
+                    <p class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300" dir="auto">@ToLocalNumerals("150K+")</p>
+                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">@SharedLocalizer["TradePartners"]</p>
                 </div>
             </div>
 
@@ -398,11 +436,8 @@
                     class="absolute inset-0 bg-gradient-to-tr from-transparent via-[#00B2EC]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
                 </div>
                 <div class="relative z-10">
-                    <p
-                        class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300">
-                        100%</p>
-                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">Trust
-                        Score</p>
+                    <p class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300" dir="auto">@ToLocalNumerals("100%")</p>
+                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">@SharedLocalizer["TrustScore"]</p>
                 </div>
             </div>
 
@@ -412,11 +447,8 @@
                     class="absolute inset-0 bg-gradient-to-tr from-transparent via-[#00B2EC]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
                 </div>
                 <div class="relative z-10">
-                    <p
-                        class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300">
-                        24/7</p>
-                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">AI
-                        Monitoring</p>
+                    <p class="font-['Poppins'] text-2xl sm:text-3xl font-bold text-[#00B2EC] group-hover:scale-110 transition-transform duration-300" dir="auto">@ToLocalNumerals("24/7")</p>
+                    <p class="font-['Inter'] text-xs font-medium text-slate-400 uppercase tracking-widest mt-1.5">@SharedLocalizer["AIMonitoring"]</p>
                 </div>
             </div>
 
@@ -424,7 +456,7 @@
     </div>
 </section>
 
-<!-- The Daleel Framework -->
+<!-- @SharedLocalizer["TheDaleel"] Framework -->
 <section class="relative py-24 sm:py-32 bg-white dark:bg-[#060D1A] overflow-hidden transition-colors duration-300">
 
     <!-- Subtle Background Pattern -->
@@ -440,22 +472,22 @@
             <div class="text-start max-w-xl" data-animate="slide-start">
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-brand-navy dark:text-white font-['Inter'] text-xs font-semibold tracking-wide mb-6 shadow-sm">
                     <span class="material-symbols-outlined text-[14px] text-[#00B2EC]" style="font-variation-settings: 'FILL' 1;">category</span>
-                    Our Core Pillars
+                    @SharedLocalizer["OurCorePillars"]
                 </div>
                 <h2 class="font-['Poppins'] text-4xl sm:text-5xl md:text-6xl font-extrabold text-brand-navy dark:text-white leading-tight mb-4 tracking-tight">
-                    The Daleel <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00B2EC] to-[#F9A01B]">Framework</span>
+                    @SharedLocalizer["TheDaleel"] <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00B2EC] to-[#F9A01B]">@SharedLocalizer["Framework"]</span>
                 </h2>
                 <p class="font-['Inter'] text-slate-500 dark:text-slate-400 text-lg sm:text-xl leading-relaxed">
-                    Three interconnected pillars that form the foundation of global strategic intelligence.
+                    @SharedLocalizer["FrameworkDesc"]
                 </p>
             </div>
-            <div class="hidden md:block w-24 h-1.5 rounded-full bg-gradient-to-r from-[#00B2EC] via-[#EF4123] to-[#F9A01B] shrink-0" data-animate="slide-end" data-delay="2"></div>
+            <div class="hidden md:block w-24 h-1.5 rounded-full bg-gradient-to-r from-[#00B2EC] via-[#10B981] to-[#F9A01B] shrink-0" data-animate="slide-end" data-delay="2"></div>
         </div>
 
         <!-- Framework Cards -->
         <div class="grid md:grid-cols-3 gap-6 sm:gap-8">
 
-            <!-- Card 1: Global Information -->
+            <!-- Card 1: @SharedLocalizer["GlobalInformation"] -->
             <div class="group relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-[#00B2EC]/10 bg-white dark:bg-[#0A192F] border border-slate-200 dark:border-slate-800" data-animate="fade-up" data-delay="1">
                 <!-- Card Background Hover State -->
                 <div class="absolute inset-0 bg-gradient-to-br from-[#00B2EC]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -469,67 +501,67 @@
                         <div class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-[#112240] border border-slate-100 dark:border-slate-700/50 flex items-center justify-center group-hover:bg-[#00B2EC] group-hover:border-[#00B2EC] group-hover:shadow-lg group-hover:shadow-[#00B2EC]/30 transition-all duration-500 group-hover:scale-110">
                             <span class="material-symbols-outlined text-[#00B2EC] group-hover:text-white text-[28px] transition-colors duration-500" style="font-variation-settings: 'FILL' 1;">public</span>
                         </div>
-                        <span class="font-['Poppins'] text-5xl font-extrabold text-slate-100 dark:text-slate-800/50 group-hover:text-[#00B2EC]/10 transition-colors duration-500">01</span>
+                        <span class="font-['Poppins'] text-5xl font-extrabold text-slate-100 dark:text-slate-800/50 group-hover:text-[#00B2EC]/10 transition-colors duration-500" dir="auto">@ToLocalNumerals("01")</span>
                     </div>
 
                     <!-- Content -->
                     <h3 class="font-['Poppins'] text-2xl font-bold mb-4 text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors duration-300">
-                        Global Information
+                        @SharedLocalizer["GlobalInformation"]
                     </h3>
                     <p class="font-['Inter'] text-slate-500 dark:text-slate-400 leading-relaxed mb-8 flex-grow group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors duration-300">
-                        Comprehensive intelligence harvesting across all major trade corridors. A single source of truth for decision makers navigating 140+ jurisdictions.
+                        @SharedLocalizer["GlobalInformationDesc"]
                     </p>
 
                     <!-- Features List -->
                     <ul class="space-y-3 font-['Inter'] text-sm mt-auto pt-6 border-t border-slate-100 dark:border-slate-800/50 group-hover:border-[#00B2EC]/20 transition-colors duration-500">
                         <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-75">
                             <span class="material-symbols-outlined text-[18px] text-[#00B2EC]">check_circle</span>
-                            Real-time news monitoring
+                            @SharedLocalizer["RealTimeNews"]
                         </li>
                         <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-100">
                             <span class="material-symbols-outlined text-[18px] text-[#00B2EC]">check_circle</span>
-                            Regulatory filing tracking
+                            @SharedLocalizer["RegulatoryFiling"]
                         </li>
                         <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-150">
                             <span class="material-symbols-outlined text-[18px] text-[#00B2EC]">check_circle</span>
-                            Multi-language processing
+                            @SharedLocalizer["MultiLanguageProcessing"]
                         </li>
                     </ul>
                 </div>
             </div>
 
             <!-- Card 2: Global Trade -->
-            <div class="group relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-[#EF4123]/10 bg-white dark:bg-[#0A192F] border border-slate-200 dark:border-slate-800" data-animate="fade-up" data-delay="3">
-                <div class="absolute inset-0 bg-gradient-to-br from-[#EF4123]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div class="absolute -inset-px bg-gradient-to-br from-[#EF4123] to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-3xl" style="z-index: -1;"></div>
+            <div class="group relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-[#10B981]/10 bg-white dark:bg-[#0A192F] border border-slate-200 dark:border-slate-800" data-animate="fade-up" data-delay="3">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#10B981]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute -inset-px bg-gradient-to-br from-[#10B981] to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-3xl" style="z-index: -1;"></div>
 
                 <div class="relative p-8 sm:p-10 h-full flex flex-col">
                     <div class="flex justify-between items-start mb-8">
-                        <div class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-[#112240] border border-slate-100 dark:border-slate-700/50 flex items-center justify-center group-hover:bg-[#EF4123] group-hover:border-[#EF4123] group-hover:shadow-lg group-hover:shadow-[#EF4123]/30 transition-all duration-500 group-hover:scale-110">
-                            <span class="material-symbols-outlined text-[#EF4123] group-hover:text-white text-[28px] transition-colors duration-500" style="font-variation-settings: 'FILL' 1;">payments</span>
+                        <div class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-[#112240] border border-slate-100 dark:border-slate-700/50 flex items-center justify-center group-hover:bg-[#10B981] group-hover:border-[#10B981] group-hover:shadow-lg group-hover:shadow-[#10B981]/30 transition-all duration-500 group-hover:scale-110">
+                            <span class="material-symbols-outlined text-[#10B981] group-hover:text-white text-[28px] transition-colors duration-500" style="font-variation-settings: 'FILL' 1;">payments</span>
                         </div>
-                        <span class="font-['Poppins'] text-5xl font-extrabold text-slate-100 dark:text-slate-800/50 group-hover:text-[#EF4123]/10 transition-colors duration-500">02</span>
+                        <span class="font-['Poppins'] text-5xl font-extrabold text-slate-100 dark:text-slate-800/50 group-hover:text-[#10B981]/10 transition-colors duration-500" dir="auto">@ToLocalNumerals("02")</span>
                     </div>
 
-                    <h3 class="font-['Poppins'] text-2xl font-bold mb-4 text-brand-navy dark:text-white group-hover:text-[#EF4123] transition-colors duration-300">
-                        Global Trade
+                    <h3 class="font-['Poppins'] text-2xl font-bold mb-4 text-brand-navy dark:text-white group-hover:text-[#10B981] transition-colors duration-300">
+                        @SharedLocalizer["GlobalTrade"]
                     </h3>
                     <p class="font-['Inter'] text-slate-500 dark:text-slate-400 leading-relaxed mb-8 flex-grow group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors duration-300">
-                        Seamless cross-border transaction analysis and optimization, powered by AI-driven logistics intelligence and geopolitical risk modeling.
+                        @SharedLocalizer["GlobalTradeDesc"]
                     </p>
 
-                    <ul class="space-y-3 font-['Inter'] text-sm mt-auto pt-6 border-t border-slate-100 dark:border-slate-800/50 group-hover:border-[#EF4123]/20 transition-colors duration-500">
+                    <ul class="space-y-3 font-['Inter'] text-sm mt-auto pt-6 border-t border-slate-100 dark:border-slate-800/50 group-hover:border-[#10B981]/20 transition-colors duration-500">
                         <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-75">
-                            <span class="material-symbols-outlined text-[18px] text-[#EF4123]">check_circle</span>
-                            Supply chain optimization
+                            <span class="material-symbols-outlined text-[18px] text-[#10B981]">check_circle</span>
+                            @SharedLocalizer["SupplyChainOpt"]
                         </li>
                         <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-100">
-                            <span class="material-symbols-outlined text-[18px] text-[#EF4123]">check_circle</span>
-                            Tariff & compliance mapping
+                            <span class="material-symbols-outlined text-[18px] text-[#10B981]">check_circle</span>
+                            @SharedLocalizer["TariffCompliance"]
                         </li>
                         <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-150">
-                            <span class="material-symbols-outlined text-[18px] text-[#EF4123]">check_circle</span>
-                            Risk corridor analysis
+                            <span class="material-symbols-outlined text-[18px] text-[#10B981]">check_circle</span>
+                            @SharedLocalizer["RiskCorridor"]
                         </li>
                     </ul>
                 </div>
@@ -545,28 +577,28 @@
                         <div class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-[#112240] border border-slate-100 dark:border-slate-700/50 flex items-center justify-center group-hover:bg-[#F9A01B] group-hover:border-[#F9A01B] group-hover:shadow-lg group-hover:shadow-[#F9A01B]/30 transition-all duration-500 group-hover:scale-110">
                             <span class="material-symbols-outlined text-[#F9A01B] group-hover:text-white text-[28px] transition-colors duration-500" style="font-variation-settings: 'FILL' 1;">campaign</span>
                         </div>
-                        <span class="font-['Poppins'] text-5xl font-extrabold text-slate-100 dark:text-slate-800/50 group-hover:text-[#F9A01B]/10 transition-colors duration-500">03</span>
+                        <span class="font-['Poppins'] text-5xl font-extrabold text-slate-100 dark:text-slate-800/50 group-hover:text-[#F9A01B]/10 transition-colors duration-500" dir="auto">@ToLocalNumerals("03")</span>
                     </div>
 
                     <h3 class="font-['Poppins'] text-2xl font-bold mb-4 text-brand-navy dark:text-white group-hover:text-[#F9A01B] transition-colors duration-300">
-                        Purposeful Media
+                        @SharedLocalizer["PurposefulMedia"]
                     </h3>
                     <p class="font-['Inter'] text-slate-500 dark:text-slate-400 leading-relaxed mb-8 flex-grow group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors duration-300">
-                        Strategic narrative shaping and communication strategies that ensure your vision resonates clearly in the global digital marketplace.
+                        @SharedLocalizer["PurposefulMediaDesc"]
                     </p>
 
                     <ul class="space-y-3 font-['Inter'] text-sm mt-auto pt-6 border-t border-slate-100 dark:border-slate-800/50 group-hover:border-[#F9A01B]/20 transition-colors duration-500">
                         <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-75">
                             <span class="material-symbols-outlined text-[18px] text-[#F9A01B]">check_circle</span>
-                            Sentiment analysis
+                            @SharedLocalizer["SentimentAnalysis"]
                         </li>
                         <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-100">
                             <span class="material-symbols-outlined text-[18px] text-[#F9A01B]">check_circle</span>
-                            Narrative intelligence
+                            @SharedLocalizer["NarrativeIntelligence"]
                         </li>
                         <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 group-hover:translate-x-2 transition-transform duration-300 delay-150">
                             <span class="material-symbols-outlined text-[18px] text-[#F9A01B]">check_circle</span>
-                            Digital reputation mapping
+                            @SharedLocalizer["DigitalReputation"]
                         </li>
                     </ul>
                 </div>
@@ -596,16 +628,15 @@
                 class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00B2EC]/10 text-[#00B2EC] font-['Inter'] text-xs font-semibold tracking-wide mb-6">
                 <span class="material-symbols-outlined text-[14px]"
                     style="font-variation-settings: 'FILL' 1;">diamond</span>
-                What Sets Us Apart
+                @SharedLocalizer["WhatSetsUsApart"]
             </div>
             <h2
                 class="font-['Poppins'] text-3xl sm:text-4xl md:text-5xl font-bold text-brand-navy dark:text-white leading-tight mb-6">
-                Why <span class="text-gradient">DALEEL</span> is Different
+                @SharedLocalizer["WhyDaleelIsDifferent"]
             </h2>
             <p
                 class="font-['Inter'] text-base sm:text-lg text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed">
-                While others react to the market, we anticipate it. Our intelligence infrastructure
-                is built for the speed and complexity of the modern global economy.
+                @SharedLocalizer["WhyDaleelDesc"]
             </p>
         </div>
 
@@ -620,45 +651,38 @@
                     <span class="material-symbols-outlined text-[#00B2EC] text-[28px]"
                         style="font-variation-settings: 'FILL' 1;">speed</span>
                 </div>
-                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Real-Time
-                    Intelligence</h3>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">@SharedLocalizer["RealTimeIntelligence"]</h3>
                 <p
                     class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
-                    Our AI processes 10M+ data points per day across 140 jurisdictions — delivering actionable
-                    intelligence in minutes, not weeks.
+                    @SharedLocalizer["RealTimeIntDesc"]
                 </p>
                 <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
                     <div class="flex items-center gap-3">
-                        <span class="text-[#00B2EC] font-['Poppins'] text-2xl font-bold">
-                            5min</span>
+                        <span class="text-[#00B2EC] font-['Poppins'] text-2xl font-bold" dir="auto">@ToLocalNumerals("5min")</span>
                         <span
-                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Average
-                            Insight Delivery</span>
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">@SharedLocalizer["AvgInsightDelivery"]</span>
                     </div>
                 </div>
             </div>
 
             <!-- Card 2: Trust-First Architecture -->
-            <div class="group glass-card rounded-2xl p-8 hover:border-[#EF4123]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(239,65,35,0.1)] transition-all duration-500 text-start"
+            <div class="group glass-card rounded-2xl p-8 hover:border-[#10B981]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(239,65,35,0.1)] transition-all duration-500 text-start"
                 data-animate="scale-in" data-delay="2">
                 <div
-                    class="w-14 h-14 rounded-xl bg-[#EF4123]/10 flex items-center justify-center mb-6 group-hover:bg-[#EF4123]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(239,65,35,0.2)] transition-all duration-500">
-                    <span class="material-symbols-outlined text-[#EF4123] text-[28px]"
+                    class="w-14 h-14 rounded-xl bg-[#10B981]/10 flex items-center justify-center mb-6 group-hover:bg-[#10B981]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(239,65,35,0.2)] transition-all duration-500">
+                    <span class="material-symbols-outlined text-[#10B981] text-[28px]"
                         style="font-variation-settings: 'FILL' 1;">verified_user</span>
                 </div>
-                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Trust-First
-                    Architecture</h3>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">@SharedLocalizer["TrustFirstArchitecture"]</h3>
                 <p
                     class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
-                    Every data point is verified through our proprietary trust-scoring system.
-                    No noise. No misinformation. Only verified intelligence you can stake decisions on.
+                    @SharedLocalizer["TrustFirstDesc"]
                 </p>
                 <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
                     <div class="flex items-center gap-3">
-                        <span class="text-[#EF4123] font-['Poppins'] text-2xl font-bold">100%</span>
+                        <span class="text-[#10B981] font-['Poppins'] text-2xl font-bold" dir="auto">@ToLocalNumerals("100%")</span>
                         <span
-                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Verified
-                            Trust Score</span>
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">@SharedLocalizer["VerifiedTrustScore"]</span>
                     </div>
                 </div>
             </div>
@@ -671,19 +695,17 @@
                     <span class="material-symbols-outlined text-[#F9A01B] text-[28px]"
                         style="font-variation-settings: 'FILL' 1;">hub</span>
                 </div>
-                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Cross-Domain Fusion
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">@SharedLocalizer["CrossDomainFusion"]
                 </h3>
                 <p
                     class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
-                    We don't just aggregate — we fuse. Trade data meets geopolitical analysis meets media sentiment
-                    to reveal patterns no single-domain platform can see.
+                    @SharedLocalizer["CrossDomainDesc"]
                 </p>
                 <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
                     <div class="flex items-center gap-3">
-                        <span class="text-[#F9A01B] font-['Poppins'] text-2xl font-bold">3-in-1</span>
+                        <span class="text-[#F9A01B] font-['Poppins'] text-2xl font-bold" dir="auto">@ToLocalNumerals("3-in-1")</span>
                         <span
-                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Information
-                            · Trade · Media</span>
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">@SharedLocalizer["InfoTradeMedia"]</span>
                     </div>
                 </div>
             </div>
@@ -696,44 +718,39 @@
                     <span class="material-symbols-outlined text-[#00B2EC] text-[28px]"
                         style="font-variation-settings: 'FILL' 1;">language</span>
                 </div>
-                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">True Global Coverage
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">@SharedLocalizer["TrueGlobalCoverage"]
                 </h3>
                 <p
                     class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
-                    From MENA corridors to Southeast Asian supply chains — our intelligence network
-                    spans every major trade region with local expertise and cultural context.
+                    @SharedLocalizer["GlobalCoverageDesc"]
                 </p>
                 <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
                     <div class="flex items-center gap-3">
-                        <span class="text-[#00B2EC] font-['Poppins'] text-2xl font-bold">140+</span>
+                        <span class="text-[#00B2EC] font-['Poppins'] text-2xl font-bold" dir="auto">@ToLocalNumerals("140+")</span>
                         <span
-                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Jurisdictions
-                            Covered</span>
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">@SharedLocalizer["JurisdictionsCovered"]</span>
                     </div>
                 </div>
             </div>
 
             <!-- Card 5: Predictive, Not Reactive -->
-            <div class="group glass-card rounded-2xl p-8 hover:border-[#EF4123]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(239,65,35,0.1)] transition-all duration-500 text-start"
+            <div class="group glass-card rounded-2xl p-8 hover:border-[#10B981]/30 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(239,65,35,0.1)] transition-all duration-500 text-start"
                 data-animate="scale-in" data-delay="5">
                 <div
-                    class="w-14 h-14 rounded-xl bg-[#EF4123]/10 flex items-center justify-center mb-6 group-hover:bg-[#EF4123]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(239,65,35,0.2)] transition-all duration-500">
-                    <span class="material-symbols-outlined text-[#EF4123] text-[28px]"
+                    class="w-14 h-14 rounded-xl bg-[#10B981]/10 flex items-center justify-center mb-6 group-hover:bg-[#10B981]/20 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(239,65,35,0.2)] transition-all duration-500">
+                    <span class="material-symbols-outlined text-[#10B981] text-[28px]"
                         style="font-variation-settings: 'FILL' 1;">trending_up</span>
                 </div>
-                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Predictive, Not
-                    Reactive</h3>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">@SharedLocalizer["PredictiveNotReactive"]</h3>
                 <p
                     class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
-                    Our AI doesn't just report what happened — it forecasts what's coming. Risk signals
-                    are detected 72 hours before they hit mainstream radar.
+                    @SharedLocalizer["PredictiveDesc"]
                 </p>
                 <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
                     <div class="flex items-center gap-3">
-                        <span class="text-[#EF4123] font-['Poppins'] text-2xl font-bold">72hrs</span>
+                        <span class="text-[#10B981] font-['Poppins'] text-2xl font-bold" dir="auto">@ToLocalNumerals("24/7")</span>
                         <span
-                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Early
-                            Warning Advantage</span>
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">@SharedLocalizer["EarlyWarningAdvantage"]</span>
                     </div>
                 </div>
             </div>
@@ -746,19 +763,16 @@
                     <span class="material-symbols-outlined text-[#F9A01B] text-[28px]"
                         style="font-variation-settings: 'FILL' 1;">shield_lock</span>
                 </div>
-                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">Enterprise-Grade
-                    Security</h3>
+                <h3 class="font-['Poppins'] text-xl font-bold text-brand-navy dark:text-white mb-3">@SharedLocalizer["EnterpriseSecurity"]</h3>
                 <p
                     class="font-['Inter'] text-brand-navy/60 dark:text-brand-navy/10 dark:text-brand-navy dark:text-white/50 leading-relaxed text-sm">
-                    SOC 2 compliant, end-to-end encrypted, with role-based access control.
-                    Your intelligence stays yours — protected at every layer.
+                    @SharedLocalizer["EnterpriseSecurityDesc"]
                 </p>
                 <div class="mt-6 pt-6 border-t border-brand-navy/10 dark:border-white/5">
                     <div class="flex items-center gap-3">
-                        <span class="text-[#F9A01B] font-['Poppins'] text-2xl font-bold">SOC 2</span>
+                        <span class="text-[#F9A01B] font-['Poppins'] text-2xl font-bold" dir="auto">@ToLocalNumerals("SOC 2")</span>
                         <span
-                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">Certified
-                            & Encrypted</span>
+                            class="text-brand-navy/40 dark:text-brand-navy dark:text-white/30 text-xs font-['Inter']">@SharedLocalizer["CertifiedEncrypted"]</span>
                     </div>
                 </div>
             </div>
@@ -771,16 +785,16 @@
 
             <p
                 class="font-['Inter'] text-slate-500 dark:text-slate-400 text-sm font-medium tracking-wide mb-6 uppercase">
-                Ready to experience the difference?
+                @SharedLocalizer["ReadyToExperience"]
             </p>
 
-            <a href="#"
+            <a asp-controller="Home" asp-action="ScheduleDemo"
                 class="group relative inline-flex items-center gap-3 bg-[#00B2EC] text-white px-10 py-4 rounded-2xl font-['Inter'] font-bold text-lg shadow-[0_10px_30px_rgba(0,178,236,0.3)] hover:shadow-[0_15px_40px_rgba(0,178,236,0.5)] hover:-translate-y-1 active:scale-95 transition-all duration-300">
 
                 <span
                     class="absolute inset-0 rounded-2xl bg-[#00B2EC] blur-md opacity-0 group-hover:opacity-40 transition-opacity"></span>
 
-                <span class="relative z-10">Schedule a Demo</span>
+                <span class="relative z-10">@SharedLocalizer["ScheduleDemo"]</span>
 
                 <span
                     class="relative z-10 material-symbols-outlined text-[22px] transition-transform duration-300 group-hover:translate-x-1.5 rtl:group-hover:-translate-x-1.5 rtl:rotate-180">
@@ -789,9 +803,9 @@
             </a>
 
             <div class="mt-6">
-                <a href="#"
+                <a asp-controller="Home" asp-action="Pricing"
                     class="text-slate-400 hover:text-[#00B2EC] text-xs font-semibold transition-colors border-b border-transparent hover:border-[#00B2EC] pb-0.5">
-                    View Pricing Plans
+                    @SharedLocalizer["ViewPricingPlans"]
                 </a>
             </div>
         </div>
@@ -799,7 +813,9 @@
     </div>
 </section>
 
-<!-- Global Perspectives / Insights -->
+
+
+<!-- @SharedLocalizer["GlobalPerspectives"] / Insights -->
 <section class="relative bg-[#F8F9FA] dark:bg-[#060D1A] py-24 sm:py-32 overflow-hidden transition-colors duration-300">
 
     <!-- Background Decoration -->
@@ -814,15 +830,15 @@
             <div class="text-start" data-animate="fade-up">
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-navy/5 dark:bg-white/5 text-brand-navy dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-6">
                     <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">insights</span>
-                    Intelligence Feed
+                    @SharedLocalizer["IntelligenceFeed"]
                 </div>
-                <h2 class="font-['Poppins'] text-3xl sm:text-4xl font-bold text-brand-navy dark:text-white mb-2">Global Perspectives</h2>
-                <p class="font-['Inter'] text-slate-500 dark:text-slate-400 text-base sm:text-lg">Strategic insights from our world-class analysts.</p>
+                <h2 class="font-['Poppins'] text-3xl sm:text-4xl font-bold text-brand-navy dark:text-white mb-2">@SharedLocalizer["GlobalPerspectives"]</h2>
+                <p class="font-['Inter'] text-slate-500 dark:text-slate-400 text-base sm:text-lg">@SharedLocalizer["StrategicInsightsDesc"]</p>
             </div>
-            <a href="#"
+            <a asp-action="soon"
                 class="inline-flex items-center gap-2 text-[#00B2EC] font-['Inter'] font-semibold text-sm hover:gap-3 transition-all duration-300 shrink-0 group">
-                View All Insights
-                <span class="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                @SharedLocalizer["ViewAllInsights"]
+                <span class="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 rtl:rotate-180 transition-transform">arrow_forward</span>
             </a>
         </div>
 
@@ -830,7 +846,7 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[280px] sm:auto-rows-[300px]">
 
             <!-- Main Feature (Large) -->
-            <div class="md:col-span-7 md:row-span-2 relative rounded-2xl overflow-hidden group cursor-pointer" data-animate="slide-start" data-delay="1">
+            <a asp-controller="Home" asp-action="Article" class="block md:col-span-7 md:row-span-2 relative rounded-2xl overflow-hidden group cursor-pointer" data-animate="slide-start" data-delay="1">
                 <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     alt="modern glass corporate skyscrapers reflecting sunlight"
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYvt_umU7PQEKKpALP6ubUKpQGILOmQ-JUgeEf9D2X8QcOWVHA9msHxUOWvLJ45rK1Zf-PATGkErd67lGkqP1MamDwvN-r85ninbUfzndrqVDs-hhLmAdAb6z3Sghc-rwbxjhd6-IalHKRq04WO7Fg9gPdGtNDvYJy-Gwb4o4y41VIGt1gQ1D7xshfcMERwwqSk6HS06Kt7Q1Y69C6paBPW7hWlt2yEIi4JQFAkbgInSnUyfSNDlgZkKlAaL4aWMt6PJTVRS1bej0" />
@@ -839,113 +855,111 @@
                 <!-- Badge + Content -->
                 <div class="absolute bottom-0 start-0 p-8 sm:p-10 text-start">
                     <span class="bg-[#00B2EC] text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider mb-4 inline-block shadow-lg shadow-[#00B2EC]/20">
-                        White Paper
+                        @SharedLocalizer["WhitePaper"]
                     </span>
-                    <h3 class="font-['Poppins'] text-xl sm:text-2xl font-bold text-white mb-3 leading-snug max-w-lg">
-                        The 2025 Global Economic Pivot: Navigation Strategies
+                    <h3 class="font-['Poppins'] text-xl sm:text-2xl font-bold text-white mb-3 leading-snug max-w-lg" dir="auto">
+                        @ToLocalNumerals(SharedLocalizer["WhitePaperTitle"].Value)
                     </h3>
-                    <p class="font-['Inter'] text-white/70 text-sm max-w-md leading-relaxed">
-                        How emerging economies are reshaping trade corridors and what it means for institutional investors.
+                    <p class="font-['Inter'] text-white/70 text-sm max-w-md leading-relaxed" dir="auto">
+                        @ToLocalNumerals(SharedLocalizer["WhitePaperDesc"].Value)
                     </p>
                     <div class="mt-5 flex items-center gap-4">
-                        <span class="text-white/40 text-xs font-['Inter']">12 min read</span>
+                        <span class="text-white/40 text-xs font-['Inter']" dir="auto">@ToLocalNumerals(SharedLocalizer["MinRead12"].Value)</span>
                         <span class="w-1 h-1 rounded-full bg-white/20"></span>
-                        <span class="text-white/40 text-xs font-['Inter']">May 15, 2024</span>
+                        <span class="text-white/40 text-xs font-['Inter']" dir="auto">@ToLocalNumerals(SharedLocalizer["May152024"].Value)</span>
                     </div>
                 </div>
 
                 <!-- Hover Arrow -->
                 <div class="absolute top-6 end-6 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                    <span class="material-symbols-outlined text-white text-[20px]">north_east</span>
+                    <span class="material-symbols-outlined text-white text-[20px] rtl:-scale-x-100">north_east</span>
                 </div>
-            </div>
+            </a>
 
             <!-- Secondary Card 1 -->
-            <div class="md:col-span-5 relative rounded-2xl overflow-hidden group cursor-pointer bg-white dark:bg-[#0A192F] shadow-sm hover:shadow-xl transition-all duration-500" data-animate="slide-end" data-delay="2">
+            <a asp-controller="Home" asp-action="Article" class="block md:col-span-5 relative rounded-2xl overflow-hidden group cursor-pointer bg-white dark:bg-[#0A192F] shadow-sm hover:shadow-xl transition-all duration-500" data-animate="slide-end" data-delay="2">
                 <div class="h-full p-8 flex flex-col justify-between text-start">
                     <div>
                         <div class="flex items-center gap-2 mb-4">
-                            <span class="bg-[#EF4123]/10 text-[#EF4123] px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Report</span>
-                            <span class="text-slate-300 dark:text-slate-500 text-xs font-['Inter']">May 12, 2024</span>
+                            <span class="bg-[#10B981]/10 text-[#10B981] px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">@SharedLocalizer["Report"]</span>
+                            <span class="text-slate-300 dark:text-slate-500 text-xs font-['Inter']" dir="auto">@ToLocalNumerals(SharedLocalizer["May122024"].Value)</span>
                         </div>
-                        <h4 class="font-['Poppins'] text-lg sm:text-xl font-bold text-brand-navy dark:text-white mb-3 group-hover:text-[#00B2EC] transition-colors duration-300">
-                            Supply Chain Resiliency: Mapping New Routes in South East Asia
+                        <h4 class="font-['Poppins'] text-lg sm:text-xl font-bold text-brand-navy dark:text-white mb-3 group-hover:text-[#00B2EC] transition-colors duration-300" dir="auto">
+                            @ToLocalNumerals(SharedLocalizer["ReportTitle"].Value)
                         </h4>
-                        <p class="font-['Inter'] text-slate-400 text-sm leading-relaxed line-clamp-3">
-                            How shifting geopolitical dynamics are creating new logistics corridors
-                            and what enterprises need to prepare for.
+                        <p class="font-['Inter'] text-slate-400 text-sm leading-relaxed line-clamp-3" dir="auto">
+                            @ToLocalNumerals(SharedLocalizer["ReportDesc"].Value)
                         </p>
                     </div>
                     <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <span class="text-slate-400 text-xs font-['Inter']">8 min read</span>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-500 group-hover:text-[#00B2EC] transition-colors text-[20px]">north_east</span>
+                        <span class="text-slate-400 text-xs font-['Inter']" dir="auto">@ToLocalNumerals(SharedLocalizer["MinRead8"].Value)</span>
+                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-500 group-hover:text-[#00B2EC] transition-colors text-[20px] rtl:-scale-x-100">north_east</span>
                     </div>
                 </div>
-            </div>
+            </a>
 
             <!-- Secondary Card 2 -->
-            <div class="md:col-span-5 relative rounded-2xl overflow-hidden group cursor-pointer bg-white dark:bg-[#0A192F] shadow-sm hover:shadow-xl transition-all duration-500" data-animate="slide-end" data-delay="3">
+            <a asp-controller="Home" asp-action="Article" class="block md:col-span-5 relative rounded-2xl overflow-hidden group cursor-pointer bg-white dark:bg-[#0A192F] shadow-sm hover:shadow-xl transition-all duration-500" data-animate="slide-end" data-delay="3">
                 <div class="h-full p-8 flex flex-col justify-between text-start">
                     <div>
                         <div class="flex items-center gap-2 mb-4">
-                            <span class="bg-[#F9A01B]/10 text-[#F9A01B] px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Analysis</span>
-                            <span class="text-slate-300 dark:text-slate-500 text-xs font-['Inter']">May 08, 2024</span>
+                            <span class="bg-[#F9A01B]/10 text-[#F9A01B] px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">@SharedLocalizer["Analysis"]</span>
+                            <span class="text-slate-300 dark:text-slate-500 text-xs font-['Inter']" dir="auto">@ToLocalNumerals(SharedLocalizer["May082024"].Value)</span>
                         </div>
-                        <h4 class="font-['Poppins'] text-lg sm:text-xl font-bold text-brand-navy dark:text-white mb-3 group-hover:text-[#00B2EC] transition-colors duration-300">
-                            AI in Governance: Predictive Modeling for Regulatory Compliance
+                        <h4 class="font-['Poppins'] text-lg sm:text-xl font-bold text-brand-navy dark:text-white mb-3 group-hover:text-[#00B2EC] transition-colors duration-300" dir="auto">
+                            @ToLocalNumerals(SharedLocalizer["AnalysisTitle"].Value)
                         </h4>
-                        <p class="font-['Inter'] text-slate-400 text-sm leading-relaxed line-clamp-3">
-                            Machine learning models are transforming how governments anticipate
-                            policy impacts and enforce compliance at scale.
+                        <p class="font-['Inter'] text-slate-400 text-sm leading-relaxed line-clamp-3" dir="auto">
+                            @ToLocalNumerals(SharedLocalizer["AnalysisDesc"].Value)
                         </p>
                     </div>
                     <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <span class="text-slate-400 text-xs font-['Inter']">6 min read</span>
-                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-500 group-hover:text-[#00B2EC] transition-colors text-[20px]">north_east</span>
+                        <span class="text-slate-400 text-xs font-['Inter']" dir="auto">@ToLocalNumerals(SharedLocalizer["MinRead6"].Value)</span>
+                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-500 group-hover:text-[#00B2EC] transition-colors text-[20px] rtl:-scale-x-100">north_east</span>
                     </div>
                 </div>
-            </div>
+            </a>
 
         </div>
 
         <!-- Bottom Row: Quick Articles -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-            <div class="group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="4">
+            <a asp-controller="Home" asp-action="Article" class="block group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="4">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="w-2 h-2 rounded-full bg-[#00B2EC]"></span>
-                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">Trade Alert</span>
+                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">@SharedLocalizer["TradeAlert"]</span>
                 </div>
                 <h5 class="font-['Poppins'] text-sm font-bold text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors leading-snug">
-                    MENA Trade Volumes Surge 23% in Q1 2024
+                    @ToLocalNumerals(SharedLocalizer["TradeAlertTitle"].Value)
                 </h5>
-            </div>
-            <div class="group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="5">
+            </a>
+            <a asp-controller="Home" asp-action="Article" class="block group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="5">
                 <div class="flex items-center gap-2 mb-3">
-                    <span class="w-2 h-2 rounded-full bg-[#EF4123]"></span>
-                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">Risk Alert</span>
+                    <span class="w-2 h-2 rounded-full bg-[#10B981]"></span>
+                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">@SharedLocalizer["RiskAlert"]</span>
                 </div>
                 <h5 class="font-['Poppins'] text-sm font-bold text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors leading-snug">
-                    Emerging Sanctions Impact on Commodity Flows
+                    @ToLocalNumerals(SharedLocalizer["RiskAlertTitle"].Value)
                 </h5>
-            </div>
-            <div class="group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="6">
+            </a>
+            <a asp-controller="Home" asp-action="Article" class="block group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="6">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="w-2 h-2 rounded-full bg-[#F9A01B]"></span>
-                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">Media Watch</span>
+                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">@SharedLocalizer["MediaWatch"]</span>
                 </div>
                 <h5 class="font-['Poppins'] text-sm font-bold text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors leading-snug">
-                    Digital Narrative Shifts in Global ESG Reporting
+                    @ToLocalNumerals(SharedLocalizer["MediaWatchTitle"].Value)
                 </h5>
-            </div>
-            <div class="group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="7">
+            </a>
+            <a asp-controller="Home" asp-action="Article" class="block group bg-white dark:bg-[#0A192F] rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer text-start" data-animate="fade-up" data-delay="7">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">Opportunity</span>
+                    <span class="text-slate-400 text-[10px] font-['Inter'] uppercase tracking-wider">@SharedLocalizer["Opportunity"]</span>
                 </div>
                 <h5 class="font-['Poppins'] text-sm font-bold text-brand-navy dark:text-white group-hover:text-[#00B2EC] transition-colors leading-snug">
-                    New Free Trade Zones Creating Investment Corridors
+                    @ToLocalNumerals(SharedLocalizer["OpportunityTitle"].Value)
                 </h5>
-            </div>
+            </a>
         </div>
 
     </div>
@@ -953,4 +967,9 @@
 
 @section Scripts {
     <script src="~/js/hero-scrolly.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"
+            integrity="sha512-7SRCYIJtR6F8ocwW7UxW6wGKqbSyqREDbfCORCbGLatU0iugfLdvRbc9cOmgIzP9I6xs7CsILRHEXLCcvH7NA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/js/gemini-chat.js" asp-append-version="true"></script>
+    <!-- <script src="~/js/gemini-voice.js" asp-append-version="true"></script> -->
 }

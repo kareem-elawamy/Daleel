@@ -55,7 +55,7 @@ window.tailwind.config = {
                 "daleel-navy": "#1D3166",
                 "brand-navy": "#1D3166",
                 "daleel-sky": "#00B2EC",
-                "daleel-red": "#EF4123",
+                "daleel-green": "#10B981",
                 "daleel-orange": "#F9A01B",
                 "daleel-offwhite": "#F8F9FA",
             },

@@ -2,35 +2,58 @@
     ViewData["Title"] = "Platforms";
 }
 
+@functions {
+    public string ToLocalNumerals(string input)
+    {
+        if (System.Threading.Thread.CurrentThread.CurrentCulture.Name.StartsWith("ar"))
+        {
+            string replaced = input.Replace("M", " مليون")
+                                   .Replace("K", " ألف")
+                                   .Replace("min", " دقائق")
+                                   .Replace("-in-", " في ")
+                                   .Replace('0', '٠')
+                                   .Replace('1', '١')
+                                   .Replace('2', '٢')
+                                   .Replace('3', '٣')
+                                   .Replace('4', '٤')
+                                   .Replace('5', '٥')
+                                   .Replace('6', '٦')
+                                   .Replace('7', '٧')
+                                   .Replace('8', '٨')
+                                   .Replace('9', '٩');
+                                   
+            if (replaced.EndsWith("+"))
+            {
+                replaced = "+" + replaced.TrimEnd('+');
+            }
+            
+            return replaced;
+        }
+        return input;
+    }
+}
+
 <section class="relative bg-white dark:bg-[#0A192F] py-24 sm:py-32 overflow-hidden transition-colors duration-300">
 
     <!-- Ambient Background Glows -->
     <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div
-            class="absolute top-1/4 ltr:-right-40 rtl:-left-40 w-[600px] h-[600px] rounded-full bg-[#00B2EC]/5 blur-[120px]">
-        </div>
-        <div
-            class="absolute bottom-0 ltr:-left-20 rtl:-right-20 w-[500px] h-[500px] rounded-full bg-[#EF4123]/5 blur-[100px]">
-        </div>
+        <div class="absolute top-1/4 ltr:-right-40 rtl:-left-40 w-[600px] h-[600px] rounded-full bg-[#00B2EC]/5 blur-[120px]"></div>
+        <div class="absolute bottom-0 ltr:-left-20 rtl:-right-20 w-[500px] h-[500px] rounded-full bg-[#10B981]/5 blur-[100px]"></div>
     </div>
 
     <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8">
 
         <!-- Section Header -->
         <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16" data-animate="fade-up">
-            <div
-                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-navy/5 dark:bg-white/5 text-slate-900 dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-6">
-                <span class="material-symbols-outlined text-[14px]"
-                    style="font-variation-settings: 'FILL' 1;">layers</span>
-                Core Platforms
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#00B2EC]/10 via-[#10B981]/10 to-[#fdc70c]/10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-6">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">layers</span>
+                @SharedLocalizer["CorePlatforms"]
             </div>
-            <h2
-                class="font-['Poppins'] text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white leading-tight mb-6">
-                The Daleel Ecosystem
+            <h2 class="font-['Poppins'] text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white leading-tight mb-6">
+                @SharedLocalizer["PlatformsHeading"]
             </h2>
             <p class="font-['Inter'] text-base sm:text-lg text-slate-900 dark:text-white leading-relaxed">
-                Explore our three specialized engines. Each platform is powerful on its own,
-                and exponentially more effective when combined.
+                @SharedLocalizer["PlatformsDesc"]
             </p>
         </div>
 
@@ -38,31 +61,17 @@
         <div class="flex justify-center mb-16 sm:mb-20" data-animate="fade-up" data-delay="1">
             <div id="platform-tabs-container"
                 class="relative inline-flex items-center bg-[#F8F9FA] dark:bg-[#0A192F] border border-slate-200 dark:border-slate-800 rounded-full p-1.5 shadow-sm">
-
-                <!-- The Active Indicator (Animated Background Pill) -->
                 <div id="platform-tab-indicator"
                     class="absolute top-1.5 bottom-1.5 rounded-full bg-white dark:bg-[#112240] shadow-[0_2px_10px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] border border-slate-100 dark:border-slate-700 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-0">
                 </div>
-
-                <!-- Tab: Information -->
-                <button
-                    class="platform-tab active-tab relative z-10 px-8 sm:px-10 py-3 font-['Poppins'] font-semibold text-sm sm:text-base text-[#00B2EC] transition-colors duration-300 rounded-full"
-                    data-target="tab-info">
-                    Information
+                <button class="platform-tab active-tab relative z-10 px-8 sm:px-10 py-3 font-['Poppins'] font-semibold text-sm sm:text-base text-[#00B2EC] transition-colors duration-300 rounded-full" data-target="tab-info">
+                    @SharedLocalizer["TabInformation"]
                 </button>
-
-                <!-- Tab: Trade -->
-                <button
-                    class="platform-tab relative z-10 px-8 sm:px-10 py-3 font-['Poppins'] font-semibold text-sm sm:text-base text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-300 rounded-full"
-                    data-target="tab-trade">
-                    Trade
+                <button class="platform-tab relative z-10 px-8 sm:px-10 py-3 font-['Poppins'] font-semibold text-sm sm:text-base text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-300 rounded-full" data-target="tab-trade">
+                    @SharedLocalizer["TabTrade"]
                 </button>
-
-                <!-- Tab: Media -->
-                <button
-                    class="platform-tab relative z-10 px-8 sm:px-10 py-3 font-['Poppins'] font-semibold text-sm sm:text-base text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-300 rounded-full"
-                    data-target="tab-media">
-                    Media
+                <button class="platform-tab relative z-10 px-8 sm:px-10 py-3 font-['Poppins'] font-semibold text-sm sm:text-base text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-300 rounded-full" data-target="tab-media">
+                    @SharedLocalizer["TabMedia"]
                 </button>
             </div>
         </div>
@@ -71,222 +80,149 @@
         <div class="relative" data-animate="fade-up" data-delay="2">
 
             <!-- 1. Information Platform -->
-            <div id="tab-info"
-                class="platform-content block transition-all duration-700 ease-out opacity-100 translate-y-0">
+            <div id="tab-info" class="platform-content block transition-all duration-700 ease-out opacity-100 translate-y-0">
                 <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-
-                    <!-- Text Content -->
                     <div class="space-y-8 text-start order-2 lg:order-1">
                         <div class="w-16 h-16 rounded-2xl bg-[#00B2EC]/10 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[#00B2EC] text-[32px]"
-                                style="font-variation-settings: 'FILL' 1;">dataset</span>
+                            <span class="material-symbols-outlined text-[#00B2EC] text-[32px]" style="font-variation-settings: 'FILL' 1;">dataset</span>
                         </div>
-                        <h3
-                            class="font-['Poppins'] text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
-                            Global Data Processing Engine
+                        <h3 class="font-['Poppins'] text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
+                            @SharedLocalizer["InfoPlatformTitle"]
                         </h3>
                         <p class="font-['Inter'] text-slate-900 dark:text-white text-lg leading-relaxed">
-                            Our Information platform ingests, standardizes, and verifies millions of data points
-                            across 140+ jurisdictions. We convert fragmented global noise into structured,
-                            actionable intelligence.
+                            @SharedLocalizer["InfoPlatformDesc"]
                         </p>
-
-                        <!-- Features List -->
                         <ul class="space-y-4 font-['Inter'] text-slate-900 dark:text-slate-200 font-medium">
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-[#00B2EC]/20 flex items-center justify-center shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-[#00B2EC] text-[14px]">check</span>
+                                <span class="w-6 h-6 rounded-full bg-[#00B2EC]/20 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[#00B2EC] text-[14px]">check</span>
                                 </span>
-                                10M+ Data Points Processed Daily
+                                @ToLocalNumerals(SharedLocalizer["InfoFeature1"].Value)
                             </li>
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-[#00B2EC]/20 flex items-center justify-center shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-[#00B2EC] text-[14px]">check</span>
+                                <span class="w-6 h-6 rounded-full bg-[#00B2EC]/20 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[#00B2EC] text-[14px]">check</span>
                                 </span>
-                                Cross-Border Entity Resolution
+                                @ToLocalNumerals(SharedLocalizer["InfoFeature2"].Value)
                             </li>
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-[#00B2EC]/20 flex items-center justify-center shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-[#00B2EC] text-[14px]">check</span>
+                                <span class="w-6 h-6 rounded-full bg-[#00B2EC]/20 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[#00B2EC] text-[14px]">check</span>
                                 </span>
-                                Multi-lingual OCR & Extraction
+                                @ToLocalNumerals(SharedLocalizer["InfoFeature3"].Value)
                             </li>
                         </ul>
-
-                        <a href="#"
-                            class="inline-flex items-center gap-2 text-[#00B2EC] font-['Inter'] font-semibold mt-4 hover:gap-3 transition-all duration-300 group">
-                            Explore Information Platform
-                            <span
-                                class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        <a href="#" class="inline-flex items-center gap-2 text-[#00B2EC] font-['Inter'] font-semibold mt-4 hover:gap-3 transition-all duration-300 group">
+                            @SharedLocalizer["ExploreInfoPlatform"]
+                            <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform">arrow_forward</span>
                         </a>
                     </div>
-
-                    <!-- Visual Presentation -->
                     <div class="relative order-1 lg:order-2 group">
-                        <!-- Decorative Frame -->
-                        <div
-                            class="absolute inset-0 bg-gradient-to-tr from-[#00B2EC]/20 to-transparent rounded-[2rem] transform translate-x-4 translate-y-4 group-hover:translate-x-6 group-hover:translate-y-6 transition-transform duration-700">
-                        </div>
-                        <div
-                            class="relative bg-white dark:bg-[#0A192F] rounded-[2rem] p-3 shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-[#00B2EC]/20 to-transparent rounded-[2rem] transform translate-x-4 translate-y-4 group-hover:translate-x-6 group-hover:translate-y-6 transition-transform duration-700"></div>
+                        <div class="relative bg-white dark:bg-[#0A192F] rounded-[2rem] p-3 shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                             <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYvt_umU7PQEKKpALP6ubUKpQGILOmQ-JUgeEf9D2X8QcOWVHA9msHxUOWvLJ45rK1Zf-PATGkErd67lGkqP1MamDwvN-r85ninbUfzndrqVDs-hhLmAdAb6z3Sghc-rwbxjhd6-IalHKRq04WO7Fg9gPdGtNDvYJy-Gwb4o4y41VIGt1gQ1D7xshfcMERwwqSk6HS06Kt7Q1Y69C6paBPW7hWlt2yEIi4JQFAkbgInSnUyfSNDlgZkKlAaL4aWMt6PJTVRS1bej0"
                                 alt="Information Platform Dashboard"
                                 class="w-full h-auto aspect-[4/3] object-cover rounded-xl group-hover:scale-105 transition-transform duration-700 ease-out" />
                         </div>
                     </div>
-
                 </div>
             </div>
 
             <!-- 2. Trade Platform -->
-            <div id="tab-trade"
-                class="platform-content hidden opacity-0 translate-y-8 transition-all duration-700 ease-out">
+            <div id="tab-trade" class="platform-content hidden opacity-0 translate-y-8 transition-all duration-700 ease-out">
                 <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-
-                    <!-- Visual Presentation -->
                     <div class="relative group">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-tl from-[#EF4123]/20 to-transparent rounded-[2rem] transform ltr:-translate-x-4 ltr:translate-y-4 rtl:translate-x-4 rtl:translate-y-4 group-hover:translate-y-6 transition-transform duration-700">
-                        </div>
-                        <div
-                            class="relative bg-white dark:bg-[#0A192F] rounded-[2rem] p-3 shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-tl from-[#10B981]/20 to-transparent rounded-[2rem] transform ltr:-translate-x-4 ltr:translate-y-4 rtl:translate-x-4 rtl:translate-y-4 group-hover:translate-y-6 transition-transform duration-700"></div>
+                        <div class="relative bg-white dark:bg-[#0A192F] rounded-[2rem] p-3 shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                             <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop"
                                 alt="Trade Platform Corridors"
                                 class="w-full h-auto aspect-[4/3] object-cover rounded-xl group-hover:scale-105 transition-transform duration-700 ease-out" />
                         </div>
                     </div>
-
-                    <!-- Text Content -->
                     <div class="space-y-8 text-start">
-                        <div class="w-16 h-16 rounded-2xl bg-[#EF4123]/10 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[#EF4123] text-[32px]"
-                                style="font-variation-settings: 'FILL' 1;">flight_takeoff</span>
+                        <div class="w-16 h-16 rounded-2xl bg-[#10B981]/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[#10B981] text-[32px]" style="font-variation-settings: 'FILL' 1;">flight_takeoff</span>
                         </div>
-                        <h3
-                            class="font-['Poppins'] text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
-                            Global Trade & Supply Chain
+                        <h3 class="font-['Poppins'] text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
+                            @SharedLocalizer["TradePlatformTitle"]
                         </h3>
                         <p class="font-['Inter'] text-slate-900 dark:text-white text-lg leading-relaxed">
-                            Navigate international commerce with real-time tracking of shipping corridors,
-                            commodity flows, and logistical chokepoints. We map the physical movement of the
-                            global economy.
+                            @SharedLocalizer["TradePlatformDesc"]
                         </p>
-
-                        <!-- Features List -->
                         <ul class="space-y-4 font-['Inter'] text-slate-900 dark:text-slate-200 font-medium">
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-[#EF4123]/20 flex items-center justify-center shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-[#EF4123] text-[14px]">check</span>
+                                <span class="w-6 h-6 rounded-full bg-[#10B981]/20 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[#10B981] text-[14px]">check</span>
                                 </span>
-                                Real-Time Vessel Tracking
+                                @SharedLocalizer["TradeFeature1"]
                             </li>
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-[#EF4123]/20 flex items-center justify-center shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-[#EF4123] text-[14px]">check</span>
+                                <span class="w-6 h-6 rounded-full bg-[#10B981]/20 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[#10B981] text-[14px]">check</span>
                                 </span>
-                                Sanctions & Risk Overlay
+                                @SharedLocalizer["TradeFeature2"]
                             </li>
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-[#EF4123]/20 flex items-center justify-center shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-[#EF4123] text-[14px]">check</span>
+                                <span class="w-6 h-6 rounded-full bg-[#10B981]/20 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[#10B981] text-[14px]">check</span>
                                 </span>
-                                Predictive Chokepoint Analysis
+                                @SharedLocalizer["TradeFeature3"]
                             </li>
                         </ul>
-
-                        <a href="#"
-                            class="inline-flex items-center gap-2 text-[#EF4123] font-['Inter'] font-semibold mt-4 hover:gap-3 transition-all duration-300 group">
-                            Explore Trade Platform
-                            <span
-                                class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        <a href="#" class="inline-flex items-center gap-2 text-[#10B981] font-['Inter'] font-semibold mt-4 hover:gap-3 transition-all duration-300 group">
+                            @SharedLocalizer["ExploreTradePlatform"]
+                            <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform">arrow_forward</span>
                         </a>
                     </div>
-
                 </div>
             </div>
 
             <!-- 3. Media Platform -->
-            <div id="tab-media"
-                class="platform-content hidden opacity-0 translate-y-8 transition-all duration-700 ease-out">
+            <div id="tab-media" class="platform-content hidden opacity-0 translate-y-8 transition-all duration-700 ease-out">
                 <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-
-                    <!-- Text Content -->
                     <div class="space-y-8 text-start order-2 lg:order-1">
                         <div class="w-16 h-16 rounded-2xl bg-[#F9A01B]/10 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[#F9A01B] text-[32px]"
-                                style="font-variation-settings: 'FILL' 1;">rss_feed</span>
+                            <span class="material-symbols-outlined text-[#F9A01B] text-[32px]" style="font-variation-settings: 'FILL' 1;">rss_feed</span>
                         </div>
-                        <h3
-                            class="font-['Poppins'] text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
-                            Narrative & Sentiment Analysis
+                        <h3 class="font-['Poppins'] text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
+                            @SharedLocalizer["MediaPlatformTitle"]
                         </h3>
                         <p class="font-['Inter'] text-slate-900 dark:text-white text-lg leading-relaxed">
-                            Understand the sentiment before it becomes policy. Our Media platform tracks
-                            geopolitical narratives, public sentiment shifts, and early warning signals across
-                            global news and social channels.
+                            @SharedLocalizer["MediaPlatformDesc"]
                         </p>
-
-                        <!-- Features List -->
                         <ul class="space-y-4 font-['Inter'] text-slate-900 dark:text-slate-200 font-medium">
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-[#F9A01B]/20 flex items-center justify-center shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-[#F9A01B] text-[14px]">check</span>
+                                <span class="w-6 h-6 rounded-full bg-[#F9A01B]/20 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[#F9A01B] text-[14px]">check</span>
                                 </span>
-                                Geopolitical Narrative Tracking
+                                @SharedLocalizer["MediaFeature1"]
                             </li>
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-[#F9A01B]/20 flex items-center justify-center shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-[#F9A01B] text-[14px]">check</span>
+                                <span class="w-6 h-6 rounded-full bg-[#F9A01B]/20 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[#F9A01B] text-[14px]">check</span>
                                 </span>
-                                AI-Driven Sentiment Scoring
+                                @SharedLocalizer["MediaFeature2"]
                             </li>
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-[#F9A01B]/20 flex items-center justify-center shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-[#F9A01B] text-[14px]">check</span>
+                                <span class="w-6 h-6 rounded-full bg-[#F9A01B]/20 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[#F9A01B] text-[14px]">check</span>
                                 </span>
-                                72-Hour Early Warning Alerts
+                                @SharedLocalizer["MediaFeature3"]
                             </li>
                         </ul>
-
-                        <a href="#"
-                            class="inline-flex items-center gap-2 text-[#F9A01B] font-['Inter'] font-semibold mt-4 hover:gap-3 transition-all duration-300 group">
-                            Explore Media Platform
-                            <span
-                                class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        <a href="#" class="inline-flex items-center gap-2 text-[#F9A01B] font-['Inter'] font-semibold mt-4 hover:gap-3 transition-all duration-300 group">
+                            @SharedLocalizer["ExploreMediaPlatform"]
+                            <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform">arrow_forward</span>
                         </a>
                     </div>
-
-                    <!-- Visual Presentation -->
                     <div class="relative order-1 lg:order-2 group">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-tr from-[#F9A01B]/20 to-transparent rounded-[2rem] transform translate-x-4 translate-y-4 group-hover:translate-x-6 group-hover:translate-y-6 transition-transform duration-700">
-                        </div>
-                        <div
-                            class="relative bg-white dark:bg-[#0A192F] rounded-[2rem] p-3 shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-[#F9A01B]/20 to-transparent rounded-[2rem] transform translate-x-4 translate-y-4 group-hover:translate-x-6 group-hover:translate-y-6 transition-transform duration-700"></div>
+                        <div class="relative bg-white dark:bg-[#0A192F] rounded-[2rem] p-3 shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                             <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop"
                                 alt="Media Sentiment Dashboard"
                                 class="w-full h-auto aspect-[4/3] object-cover rounded-xl group-hover:scale-105 transition-transform duration-700 ease-out" />
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -303,35 +239,28 @@
         const indicator = document.getElementById('platform-tab-indicator');
         const container = document.getElementById('platform-tabs-container');
 
-        // Configuration mapping for tab colors
         const tabColors = {
             'tab-info': 'text-[#00B2EC]',
-            'tab-trade': 'text-[#EF4123]',
+            'tab-trade': 'text-[#10B981]',
             'tab-media': 'text-[#F9A01B]'
         };
 
         function updateIndicator(tab) {
             if (!tab || !indicator || !container) return;
-
-            // Standard CSS left property handles both RTL and LTR automatically
-            // relative to the parent container, making offsetLeft perfectly safe and accurate!
             indicator.style.left = `${tab.offsetLeft}px`;
             indicator.style.width = `${tab.offsetWidth}px`;
         }
 
-        // Initial setup with a slight delay to ensure fonts and layout have loaded
         setTimeout(() => {
             const initialTab = document.querySelector('.platform-tab.active-tab') || tabs[0];
             if (initialTab) updateIndicator(initialTab);
         }, 150);
 
-        // Update on window resize
         window.addEventListener('resize', () => {
             const activeTab = document.querySelector('.platform-tab.active-tab');
             if (activeTab) updateIndicator(activeTab);
         });
 
-        // Update when RTL/LTR toggles (watching the HTML dir attribute)
         const observer = new MutationObserver(() => {
             setTimeout(() => {
                 const activeTab = document.querySelector('.platform-tab.active-tab');
@@ -340,52 +269,38 @@
         });
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['dir'] });
 
-        // Click Events
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const targetId = tab.getAttribute('data-target');
                 const activeColor = tabColors[targetId] || 'text-[#00B2EC]';
 
-                // 1. Reset all tabs
                 tabs.forEach(t => {
-                    t.classList.remove('active-tab', 'text-[#00B2EC]', 'text-[#EF4123]', 'text-[#F9A01B]');
+                    t.classList.remove('active-tab', 'text-[#00B2EC]', 'text-[#10B981]', 'text-[#F9A01B]');
                     t.classList.add('text-slate-400');
                 });
 
-                // 2. Hide all contents (Fade and slide down)
                 contents.forEach(c => {
                     c.classList.add('opacity-0', 'translate-y-8');
                     c.classList.remove('opacity-100', 'translate-y-0');
-
-                    // We use setTimeout to wait for the fade out animation before setting display: none
                     setTimeout(() => {
                         if (!c.classList.contains('opacity-100')) {
                             c.classList.add('hidden');
                             c.classList.remove('block');
                         }
-                    }, 400); // 400ms matches a standard fast transition, we use 700ms in CSS, but hidden can be applied mid-way for speed
+                    }, 400);
                 });
 
-                // 3. Activate clicked tab
                 tab.classList.add('active-tab');
                 tab.classList.remove('text-slate-400');
-                // The exact color class needs to match the mapped configuration
                 tab.className += ` ${activeColor}`;
 
-                // 4. Move Indicator
                 updateIndicator(tab);
 
-                // 5. Show target content
                 const targetContent = document.getElementById(targetId);
                 if (targetContent) {
-                    // Remove hidden immediately to put it in the DOM flow
                     targetContent.classList.remove('hidden');
                     targetContent.classList.add('block');
-
-                    // Force a reflow so the browser registers the starting state (opacity-0) before transitioning
                     void targetContent.offsetWidth;
-
-                    // Apply visible state
                     targetContent.classList.remove('opacity-0', 'translate-y-8');
                     targetContent.classList.add('opacity-100', 'translate-y-0');
                 }

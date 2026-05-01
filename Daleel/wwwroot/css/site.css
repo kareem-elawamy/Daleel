@@ -42,13 +42,13 @@ body {
 
 /* ── Brand Gradient Badge ── */
 .brand-gradient {
-  background: linear-gradient(135deg, #EF4123 0%, #F9A01B 100%);
+  background: linear-gradient(135deg, #10B981 0%, #F9A01B 100%);
 }
 
 /* ── AI Border Accent (RTL-aware) ── */
 .ai-border {
   border-inline-start: 2px solid;
-  border-image: linear-gradient(to bottom, #EF4123, #F9A01B) 1;
+  border-image: linear-gradient(to bottom, #10B981, #F9A01B) 1;
 }
 
 .light .ai-border {
@@ -125,7 +125,7 @@ body {
 }
 
 .text-gradient-red {
-  background: linear-gradient(135deg, #EF4123 0%, #F9A01B 100%);
+  background: linear-gradient(135deg, #10B981 0%, #F9A01B 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -155,7 +155,7 @@ body {
 [dir="rtl"] h3,
 [dir="rtl"] h4,
 [dir="rtl"] p,
-[dir="rtl"] span,
+[dir="rtl"] span:not(.material-symbols-outlined),
 [dir="rtl"] a,
 [dir="rtl"] button,
 [dir="rtl"] input,
@@ -176,12 +176,14 @@ body {
    Intersection Observer in index.html.
    ═══════════════════════════════════════════ */
 
-/* Base: all animated elements start invisible */
+/* Base: all animated elements start ready but visually hidden.
+   Using transform + opacity with contain to avoid CLS. */
 [data-animate] {
   opacity: 0;
   will-change: opacity, transform;
   transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  contain: layout style;
 }
 
 /* Visible state (triggered by Observer) */
@@ -256,17 +258,32 @@ body {
   transition-delay: 0.8s;
 }
 
-/* ── Dark mode global transitions ── */
-*,
-*::before,
-*::after {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow;
+/* ── Dark mode transition: only apply to specific properties,
+   NOT globally to avoid massive CLS and performance issues ── */
+.transition-colors {
+  transition-property: background-color, border-color, color, fill, stroke;
   transition-duration: 300ms;
-
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.grid div {
-  will-change: transform, box-shadow;
-  backface-visibility: hidden;
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00B2EC;
 }

@@ -15,8 +15,8 @@
     }
 
     const saved = localStorage.getItem('daleel-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (saved === 'dark' || (!saved && prefersDark)) {
+    // Default is LIGHT — only go dark if user explicitly chose dark
+    if (saved === 'dark') {
         document.documentElement.classList.add('dark');
     } else {
         document.documentElement.classList.remove('dark');

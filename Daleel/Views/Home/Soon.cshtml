@@ -6,35 +6,43 @@
     <!-- Ambient Background Glows -->
     <div class="pointer-events-none absolute inset-0" aria-hidden="true">
         <div class="absolute top-1/4 ltr:-right-40 rtl:-left-40 w-[600px] h-[600px] rounded-full bg-[#00B2EC]/10 blur-[120px]"></div>
-        <div class="absolute bottom-0 ltr:-left-20 rtl:-right-20 w-[500px] h-[500px] rounded-full bg-[#EF4123]/10 blur-[100px]"></div>
+        <div class="absolute bottom-0 ltr:-left-20 rtl:-right-20 w-[500px] h-[500px] rounded-full bg-[#10B981]/10 blur-[100px]"></div>
     </div>
 
     <!-- 3D Canvas Background -->
     <canvas id="soon-canvas" class="absolute inset-0 w-full h-full z-0 opacity-60"></canvas>
 
     <div class="relative z-10 max-w-3xl mx-auto px-6 text-center" data-animate="fade-up">
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 text-slate-900 dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-8 backdrop-blur-sm">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#00B2EC]/10 via-[#10B981]/10 to-[#fdc70c]/10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-6">
             <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">construction</span>
-            Under Construction
+            @SharedLocalizer["UnderConstruction"]
         </div>
 
         <h1 class="font-['Poppins'] text-5xl sm:text-7xl font-bold text-slate-900 dark:text-white leading-tight mb-6 drop-shadow-md">
-            Coming <span class="text-gradient">Soon</span>
+            @SharedLocalizer["ComingSoon"]
         </h1>
 
         <p class="font-['Inter'] text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed mb-10 max-w-2xl mx-auto drop-shadow-md">
-            We are currently crafting something extraordinary. This feature is being built with precision intelligence and will be available shortly.
+            @SharedLocalizer["SoonDesc"]
         </p>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a asp-controller="Home" asp-action="Index"
                 class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#00B2EC] text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base shadow-lg shadow-[#00B2EC]/20 hover:shadow-xl hover:shadow-[#00B2EC]/30 active:scale-95 transition-all duration-300">
                 <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-                Return Home
+                @SharedLocalizer["ReturnHome"]
             </a>
+        </div>
+
+        <!-- Dynamic 3D Image Set -->
+        <div class="mt-16 max-w-4xl mx-auto" data-animate="fade-up" style="animation-delay: 200ms;">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                
+            </div>
         </div>
     </div>
 </section>
+
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -71,10 +79,53 @@
                 flatShading: true
             });
 
+            // Group for all 3D objects (the "set")
+            const shapeSet = new THREE.Group();
+            scene.add(shapeSet);
+
             const mesh = new THREE.Mesh(geometry, solidMaterial);
             const wireframe = new THREE.Mesh(geometry, wireMaterial);
             mesh.add(wireframe);
-            scene.add(mesh);
+            shapeSet.add(mesh); // Add center mesh to set
+
+            // Floating objects set
+            const geometries = [
+                new THREE.TorusGeometry(0.8, 0.3, 16, 50),
+                new THREE.OctahedronGeometry(1.2),
+                new THREE.TetrahedronGeometry(1.5),
+                new THREE.SphereGeometry(0.8, 16, 16),
+                new THREE.DodecahedronGeometry(1)
+            ];
+
+            const floatingObjects = [];
+            for(let i = 0; i < 12; i++) {
+                const geom = geometries[Math.floor(Math.random() * geometries.length)];
+                const fMesh = new THREE.Mesh(geom, solidMaterial.clone());
+                const fWire = new THREE.Mesh(geom, wireMaterial.clone());
+                fMesh.add(fWire);
+                
+                fMesh.position.set(
+                    (Math.random() - 0.5) * 25,
+                    (Math.random() - 0.5) * 25,
+                    (Math.random() - 0.5) * 15 - 5
+                );
+                
+                fMesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+                
+                const scale = Math.random() * 0.4 + 0.2;
+                fMesh.scale.set(scale, scale, scale);
+                
+                floatingObjects.push({
+                    mesh: fMesh,
+                    rotSpeed: {
+                        x: (Math.random() - 0.5) * 0.02,
+                        y: (Math.random() - 0.5) * 0.02,
+                        z: (Math.random() - 0.5) * 0.02
+                    }
+                });
+                
+                shapeSet.add(fMesh);
+            }
 
             // Lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -117,12 +168,20 @@
                 mesh.rotation.x += 0.002;
                 mesh.rotation.y += 0.003;
 
+                // Auto rotation for floating set
+                floatingObjects.forEach((obj, i) => {
+                    obj.mesh.rotation.x += obj.rotSpeed.x;
+                    obj.mesh.rotation.y += obj.rotSpeed.y;
+                    obj.mesh.rotation.z += obj.rotSpeed.z;
+                    obj.mesh.position.y += Math.sin(Date.now() * 0.001 + i) * 0.005;
+                });
+
                 // Interactive rotation
                 targetRotationY += (mouseX - targetRotationY) * 0.05;
                 targetRotationX += (mouseY - targetRotationX) * 0.05;
                 
-                mesh.rotation.y += targetRotationY;
-                mesh.rotation.x += targetRotationX;
+                shapeSet.rotation.y += targetRotationY;
+                shapeSet.rotation.x += targetRotationX;
 
                 // Floating effect
                 mesh.position.y = Math.sin(Date.now() * 0.001) * 0.3;

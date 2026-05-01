@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = SharedLocalizer["PricingTitle"];
+}
+
+<section class="relative py-32 overflow-hidden bg-[#F8F9FA] dark:bg-[#060D1A] transition-colors duration-300 min-h-screen">
+    <!-- Ambient Background Glows -->
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute -top-20 right-0 w-[500px] h-[500px] rounded-[100%] bg-[#00B2EC]/10 blur-[120px]"></div>
+        <div class="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-[100%] bg-[#10B981]/5 blur-[120px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-20" data-animate="fade-up">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#10B981]/10 border border-[#10B981]/20 text-[#10B981] font-['Inter'] text-xs font-semibold tracking-wide mb-6">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">payments</span>
+                @SharedLocalizer["PricingTitle"]
+            </div>
+            <h1 class="font-['Poppins'] text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 dark:text-white leading-tight mb-6">
+                @SharedLocalizer["PricingHeading"]
+            </h1>
+            <p class="font-['Inter'] text-lg sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                @SharedLocalizer["PricingDesc"]
+            </p>
+        </div>
+            
+           
+    </div>
+</section>

@@ -1,0 +1,65 @@
+@{
+    ViewData["Title"] = SharedLocalizer["DemoTitle"];
+}
+
+<section class="relative py-32 overflow-hidden bg-white dark:bg-[#0B1220] transition-colors duration-300">
+    <!-- Ambient Background Glows -->
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute top-10 left-10 w-[600px] h-[600px] rounded-[100%] bg-[#00B2EC]/10 blur-[120px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-20" data-animate="fade-up">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00B2EC]/10 border border-[#00B2EC]/20 text-[#00B2EC] font-['Inter'] text-xs font-semibold tracking-wide mb-6">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+                @SharedLocalizer["DemoTitle"]
+            </div>
+            <h1 class="font-['Poppins'] text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 dark:text-white leading-tight mb-6">
+                @SharedLocalizer["DemoHeading"]
+            </h1>
+            <p class="font-['Inter'] text-lg sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                @SharedLocalizer["DemoDesc"]
+            </p>
+        </div>
+
+        <div class="max-w-3xl mx-auto">
+            <div class="glass-card rounded-[2rem] p-8 sm:p-10 shadow-xl dark:shadow-none" data-animate="scale-in" data-delay="1">
+                <form class="space-y-6" onsubmit="return false;">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="demo-first-name" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">@SharedLocalizer["FirstName"] <span class="text-red-500">*</span></label>
+                            <input id="demo-first-name" required type="text" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all" />
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="demo-last-name" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">@SharedLocalizer["LastName"] <span class="text-red-500">*</span></label>
+                            <input id="demo-last-name" required type="text" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all" />
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="demo-email" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">@SharedLocalizer["WorkEmail"] <span class="text-red-500">*</span></label>
+                        <input id="demo-email" required type="email" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all" />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="demo-company" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">@SharedLocalizer["Company"] <span class="text-red-500">*</span></label>
+                            <input id="demo-company" required type="text" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all" />
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="demo-job-title" class="block font-['Inter'] text-sm font-medium text-slate-900 dark:text-slate-300 mb-2">@SharedLocalizer["JobTitle"] <span class="text-red-500">*</span></label>
+                            <input id="demo-job-title" required type="text" class="w-full bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00B2EC] transition-all" />
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full mt-4 bg-[#00B2EC] text-white px-8 py-4 rounded-xl font-['Inter'] font-semibold text-base shadow-lg shadow-[#00B2EC]/20 hover:shadow-xl hover:shadow-[#00B2EC]/30 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2">
+                        @SharedLocalizer["RequestDemo"]
+                        <span class="material-symbols-outlined text-[20px] rtl:rotate-180">arrow_forward</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

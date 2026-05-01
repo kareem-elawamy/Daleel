@@ -1,0 +1,152 @@
+@{
+    ViewData["Title"] = SharedLocalizer["ArticleTitle"];
+}
+
+@functions {
+    public string ToLocalNumerals(string input)
+    {
+        if (System.Threading.Thread.CurrentThread.CurrentCulture.Name.StartsWith("ar"))
+        {
+            string replaced = input.Replace("M", " مليون")
+                                   .Replace("K", " ألف")
+                                   .Replace("min", " دقائق")
+                                   .Replace("-in-", " في ")
+                                   .Replace('0', '٠')
+                                   .Replace('1', '١')
+                                   .Replace('2', '٢')
+                                   .Replace('3', '٣')
+                                   .Replace('4', '٤')
+                                   .Replace('5', '٥')
+                                   .Replace('6', '٦')
+                                   .Replace('7', '٧')
+                                   .Replace('8', '٨')
+                                   .Replace('9', '٩');
+                                   
+            if (replaced.EndsWith("+"))
+            {
+                replaced = "+" + replaced.TrimEnd('+');
+            }
+            
+            return replaced;
+        }
+        return input;
+    }
+}
+
+<section class="relative py-32 bg-white dark:bg-[#0B1220] transition-colors duration-300 min-h-screen">
+    <!-- Header Background -->
+    <div class="absolute top-0 inset-x-0 h-[400px] bg-slate-900 overflow-hidden">
+        <img class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay"
+             alt="abstract global lines"
+             src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYvt_umU7PQEKKpALP6ubUKpQGILOmQ-JUgeEf9D2X8QcOWVHA9msHxUOWvLJ45rK1Zf-PATGkErd67lGkqP1MamDwvN-r85ninbUfzndrqVDs-hhLmAdAb6z3Sghc-rwbxjhd6-IalHKRq04WO7Fg9gPdGtNDvYJy-Gwb4o4y41VIGt1gQ1D7xshfcMERwwqSk6HS06Kt7Q1Y69C6paBPW7hWlt2yEIi4JQFAkbgInSnUyfSNDlgZkKlAaL4aWMt6PJTVRS1bej0" />
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0B1220] to-transparent"></div>
+    </div>
+
+    <div class="relative z-10 max-w-4xl mx-auto px-6 sm:px-8 pt-20">
+        
+        <!-- Article Header -->
+        <div class="mb-12" data-animate="fade-up">
+            <div class="flex flex-wrap items-center gap-4 mb-6">
+                <span class="bg-[#00B2EC] text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-[#00B2EC]/20">
+                    @SharedLocalizer["ArticleTag"]
+                </span>
+                <div class="flex items-center gap-2 text-slate-300 text-xs font-['Inter']">
+                    <span class="material-symbols-outlined text-[16px]">schedule</span>
+                    <span dir="auto">@ToLocalNumerals(SharedLocalizer["ArticleReadTime"].Value)</span>
+                </div>
+            </div>
+            
+            <h1 class="font-['Poppins'] text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-8" dir="auto">
+                @ToLocalNumerals(SharedLocalizer["ArticleHeading"].Value)
+            </h1>
+            
+            <div class="flex items-center gap-4 border-t border-white/10 pt-6">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-[#00B2EC] to-[#10B981] p-0.5">
+                    <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-[20px]">psychology</span>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-white font-['Inter'] font-semibold text-sm">@SharedLocalizer["ArticleAuthor"]</p>
+                    <p class="text-slate-400 font-['Inter'] text-xs" dir="auto">@ToLocalNumerals(SharedLocalizer["ArticleDate"].Value)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article Content -->
+        <div class="glass-card rounded-[2rem] p-8 sm:p-12 shadow-2xl" data-animate="fade-up" data-delay="1">
+            <div class="prose prose-lg dark:prose-invert max-w-none font-['Inter'] text-slate-700 dark:text-slate-300 leading-loose text-start">
+                <p class="text-xl sm:text-2xl font-medium text-slate-900 dark:text-white mb-8 leading-relaxed" dir="auto">
+                    @ToLocalNumerals(SharedLocalizer["ArticleContent1"].Value)
+                </p>
+                
+                <p class="mb-6" dir="auto">
+                    @ToLocalNumerals(SharedLocalizer["ArticleContent2"].Value)
+                </p>
+
+                <div class="my-10 p-8 rounded-2xl bg-[#F8F9FA] dark:bg-[#112240] border-s-4 border-[#00B2EC]">
+                    <p class="font-['Poppins'] text-lg text-slate-900 dark:text-white italic m-0" dir="auto">
+                        @ToLocalNumerals(SharedLocalizer["ArticleQuote"].Value)
+                    </p>
+                </div>
+
+                <p class="mb-6" dir="auto">
+                    @ToLocalNumerals(SharedLocalizer["ArticleContent3"].Value)
+                </p>
+
+                <p class="mb-6" dir="auto">
+                    @ToLocalNumerals(SharedLocalizer["ArticleContent4"].Value)
+                </p>
+
+                <div class="grid sm:grid-cols-2 gap-6 my-10">
+                    <div class="rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+                        <img src="~/images/homepage/global_trade_1777586875308.png" alt="Trade Chart" class="w-full h-48 object-cover" />
+                        <div class="p-4 bg-white dark:bg-[#0A192F]">
+                            <p class="text-xs text-slate-500 font-semibold uppercase">@SharedLocalizer["Fig1"]</p>
+                        </div>
+                    </div>
+                    <div class="rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+                        <img src="~/images/homepage/ai_predictive_1777586859142.png" alt="Sentiment Chart" class="w-full h-48 object-cover" />
+                        <div class="p-4 bg-white dark:bg-[#0A192F]">
+                            <p class="text-xs text-slate-500 font-semibold uppercase">@SharedLocalizer["Fig2"]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="font-['Poppins'] text-2xl font-bold text-slate-900 dark:text-white mt-12 mb-4">@SharedLocalizer["StrategicImperatives"]</h3>
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-[#10B981] mt-1 shrink-0">check_circle</span>
+                        <span><strong>@SharedLocalizer["Monitoring"]</strong> @SharedLocalizer["MonitoringDesc"]</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-[#10B981] mt-1 shrink-0">check_circle</span>
+                        <span><strong>@SharedLocalizer["Synthesis"]</strong> @SharedLocalizer["SynthesisDesc"]</span>
+                    </li>
+                </ul>
+
+                <p dir="auto">
+                    @ToLocalNumerals(SharedLocalizer["ArticleConclusion"].Value)
+                </p>
+
+            </div>
+
+            <!-- Share and Actions -->
+            <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">@SharedLocalizer["ShareInsight"]</span>
+                    <button class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#00B2EC] hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-[18px]">share</span>
+                    </button>
+                    <button class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-[#00B2EC] hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-[18px]">mail</span>
+                    </button>
+                </div>
+                <a asp-controller="Home" asp-action="Index" class="inline-flex items-center gap-2 text-sm font-semibold text-[#00B2EC] hover:text-[#008dbb] transition-colors">
+                    <span class="material-symbols-outlined text-[18px] rtl:rotate-180">arrow_back</span>
+                    @SharedLocalizer["BackToFeed"]
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

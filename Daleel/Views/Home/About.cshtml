@@ -2,10 +2,39 @@
     ViewData["Title"] = "About Us";
 }
 
+@functions {
+    public string ToLocalNumerals(string input)
+    {
+        if (System.Threading.Thread.CurrentThread.CurrentCulture.Name.StartsWith("ar"))
+        {
+            string replaced = input.Replace("M", " مليون")
+                                   .Replace("K", " ألف")
+                                   .Replace('0', '٠')
+                                   .Replace('1', '١')
+                                   .Replace('2', '٢')
+                                   .Replace('3', '٣')
+                                   .Replace('4', '٤')
+                                   .Replace('5', '٥')
+                                   .Replace('6', '٦')
+                                   .Replace('7', '٧')
+                                   .Replace('8', '٨')
+                                   .Replace('9', '٩');
+                                   
+            if (replaced.EndsWith("+"))
+            {
+                replaced = "+" + replaced.TrimEnd('+');
+            }
+            
+            return replaced;
+        }
+        return input;
+    }
+}
+
 <section class="relative py-32 overflow-hidden transition-colors duration-300">
     <!-- Ambient Background Glows -->
     <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div class="absolute top-10 right-10 w-[600px] h-[600px] rounded-[100%] bg-[#EF4123]/10 blur-[120px] dark:bg-[#EF4123]/5"></div>
+        <div class="absolute top-10 right-10 w-[600px] h-[600px] rounded-[100%] bg-[#10B981]/10 blur-[120px] dark:bg-[#10B981]/5"></div>
         <div class="absolute bottom-10 left-10 w-[500px] h-[500px] rounded-[100%] bg-[#00B2EC]/10 blur-[100px] dark:bg-[#00B2EC]/5"></div>
     </div>
 
@@ -14,28 +43,28 @@
         <!-- Hero Content -->
         <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-24">
             <div class="text-start" data-animate="fade-up">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-navy/5 dark:bg-white/5 text-slate-900 dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-6">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#00B2EC]/10 via-[#10B981]/10 to-[#fdc70c]/10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-300 font-['Inter'] text-xs font-semibold tracking-wide mb-6">
                     <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">public</span>
-                    Our Story
+                    @SharedLocalizer["AboutOurStory"]
                 </div>
                 <h1 class="font-['Poppins'] text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 dark:text-white leading-tight mb-6">
-                    Mapping the <br/><span class="text-gradient">Future</span>
+                    @SharedLocalizer["AboutHeading"] <br/><span class="text-gradient">@SharedLocalizer["AboutTagline"]</span>
                 </h1>
                 <p class="font-['Inter'] text-lg sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
-                    Daleel was founded on a simple premise: in an increasingly complex world, clarity is the ultimate strategic advantage. We are building the nervous system for global intelligence.
+                    @SharedLocalizer["AboutDesc"]
                 </p>
                 <div class="flex items-center gap-8 border-t border-slate-200 dark:border-white/10 pt-8">
                     <div>
-                        <p class="text-3xl font-bold font-['Poppins'] text-slate-900 dark:text-white">2020</p>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 font-['Inter'] uppercase tracking-wider mt-1">Founded</p>
+                        <p class="text-3xl font-bold font-['Poppins'] text-slate-900 dark:text-white">@ToLocalNumerals("2020")</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 font-['Inter'] uppercase tracking-wider mt-1">@SharedLocalizer["AboutFounded"]</p>
                     </div>
                     <div>
-                        <p class="text-3xl font-bold font-['Poppins'] text-slate-900 dark:text-white">140+</p>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 font-['Inter'] uppercase tracking-wider mt-1">Jurisdictions</p>
+                        <p class="text-3xl font-bold font-['Poppins'] text-slate-900 dark:text-white">@ToLocalNumerals("140+")</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 font-['Inter'] uppercase tracking-wider mt-1">@SharedLocalizer["AboutJurisdictions"]</p>
                     </div>
                     <div>
-                        <p class="text-3xl font-bold font-['Poppins'] text-[#00B2EC]">5M+</p>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 font-['Inter'] uppercase tracking-wider mt-1">Daily Signals</p>
+                        <p class="text-3xl font-bold font-['Poppins'] text-[#00B2EC]">@ToLocalNumerals("5M+")</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 font-['Inter'] uppercase tracking-wider mt-1">@SharedLocalizer["AboutDailySignals"]</p>
                     </div>
                 </div>
             </div>
@@ -53,9 +82,9 @@
         <!-- Mission Section -->
         <div class="glass-card rounded-[2rem] p-10 md:p-16 text-center max-w-4xl mx-auto" data-animate="scale-in" data-delay="2">
             <span class="material-symbols-outlined text-[#00B2EC] text-[48px] mb-6" style="font-variation-settings: 'FILL' 1;">explore</span>
-            <h2 class="font-['Poppins'] text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-6">Our Mission</h2>
+            <h2 class="font-['Poppins'] text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-6">@SharedLocalizer["OurMission"]</h2>
             <p class="font-['Inter'] text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed italic">
-                "To empower decision-makers across the globe with transparent, verified, and real-time intelligence, bridging the gap between raw data and strategic action."
+                @SharedLocalizer["MissionStatement"]
             </p>
         </div>
 

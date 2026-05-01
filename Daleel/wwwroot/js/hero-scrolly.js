@@ -173,24 +173,27 @@ loadThreeJS().then(() => {
 }).catch(err => console.error("ThreeJS load error:", err));
 
 // ═══════════════════════════════════════
-// SCROLL CONTROLLER (5 SLIDES)
+// SLIDER CONTROLLER (5 SLIDES)
 // ═══════════════════════════════════════
 (function () {
     const TOTAL_SLIDES = 5;
+    let activeIndex = 0;
+    let autoPlayInterval;
 
-    window.addEventListener('scroll', () => {
-        const scrollySection = document.getElementById('main-scrolly');
-        if (!scrollySection) return;
+    const scrollySection = document.getElementById('main-scrolly');
+    if (!scrollySection) return;
 
-        const slides = scrollySection.querySelectorAll('.story-slide');
-        const fills = scrollySection.querySelectorAll('.step-fill');
+    const slides = scrollySection.querySelectorAll('.story-slide');
+    const fills = scrollySection.querySelectorAll('.step-fill');
+    const dots = scrollySection.querySelectorAll('.step-dot');
+    const prevBtn = document.getElementById('slider-prev');
+    const nextBtn = document.getElementById('slider-next');
 
-        const sectionRect = scrollySection.getBoundingClientRect();
-        const sectionHeight = scrollySection.offsetHeight;
-        const scrollProgress = Math.max(0, -sectionRect.top) / (sectionHeight - window.innerHeight);
-
-        // Map progress to active slide
-        const activeIndex = Math.min(TOTAL_SLIDES - 1, Math.floor(scrollProgress * (TOTAL_SLIDES + 0.5)));
+    function updateSlider(index) {
+        // Wrap around
+        if (index >= TOTAL_SLIDES) activeIndex = 0;
+        else if (index < 0) activeIndex = TOTAL_SLIDES - 1;
+        else activeIndex = index;
 
         slides.forEach((slide, i) => {
             if (i === activeIndex) {
@@ -204,11 +207,152 @@ loadThreeJS().then(() => {
             }
         });
 
-        // Update step fills
         fills.forEach((fill, i) => {
-            if (i <= activeIndex) fill.style.height = '100%';
-            else fill.style.height = '0%';
+            if (i === activeIndex) {
+                fill.style.height = '100%';
+            } else {
+                fill.style.height = '0%';
+            }
+        });
+    }
+
+    function nextSlide() {
+        updateSlider(activeIndex + 1);
+        resetAutoPlay();
+    }
+
+    function prevSlide() {
+        updateSlider(activeIndex - 1);
+        resetAutoPlay();
+    }
+
+    function startAutoPlay() {
+        autoPlayInterval = setInterval(() => {
+            updateSlider(activeIndex + 1);
+        }, 5000); // 5 seconds per slide
+    }
+
+    function resetAutoPlay() {
+        clearInterval(autoPlayInterval);
+        startAutoPlay();
+    }
+
+    // Event Listeners
+    if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+    if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+            updateSlider(i);
+            resetAutoPlay();
+        });
+    });
+
+    // Initialize
+    updateSlider(0);
+    startAutoPlay();
+
+})();
+
+// ═══════════════════════════════════════
+// INTERACTIVE DATA CORE ANIMATION
+// ═══════════════════════════════════════
+loadThreeJS().then(() => {
+    const canvas = document.getElementById('interactive-core-canvas');
+    if (!canvas) return;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    const container = canvas.parentElement;
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.z = 12;
+
+    const coreSet = new THREE.Group();
+    scene.add(coreSet);
+
+    // Inner glowing sphere
+    const sphereGeo = new THREE.SphereGeometry(2, 32, 32);
+    const sphereMat = new THREE.MeshPhongMaterial({
+        color: 0x10B981,
+        emissive: 0x00B2EC,
+        emissiveIntensity: 0.5,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.8
+    });
+    const core = new THREE.Mesh(sphereGeo, sphereMat);
+    coreSet.add(core);
+
+    // Orbiting rings
+    const ringColors = [0x00B2EC, 0x10B981, 0xF9A01B];
+    const rings = [];
+    for(let i=0; i<3; i++) {
+        const ringGeo = new THREE.TorusGeometry(3 + i*0.8, 0.05, 16, 100);
+        const ringMat = new THREE.MeshBasicMaterial({ color: ringColors[i], transparent: true, opacity: 0.6 });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.random() * Math.PI;
+        ring.rotation.y = Math.random() * Math.PI;
+        rings.push({
+            mesh: ring,
+            speedX: (Math.random() - 0.5) * 0.02,
+            speedY: (Math.random() - 0.5) * 0.02
+        });
+        coreSet.add(ring);
+    }
+
+    // Particles around core
+    const particleGeo = new THREE.BufferGeometry();
+    const pCount = 200;
+    const pPos = new Float32Array(pCount * 3);
+    for(let i=0; i<pCount*3; i++) {
+        pPos[i] = (Math.random() - 0.5) * 15;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    const pMat = new THREE.PointsMaterial({ color: 0x00B2EC, size: 0.1, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending });
+    const particleSystem = new THREE.Points(particleGeo, pMat);
+    coreSet.add(particleSystem);
+
+    // Lighting
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(10, 10, 10);
+    scene.add(light);
+
+    let mouseX = 0; let mouseY = 0;
+    container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        mouseX = ((e.clientX - rect.left) / container.clientWidth) * 2 - 1;
+        mouseY = -((e.clientY - rect.top) / container.clientHeight) * 2 + 1;
+    });
+
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        core.rotation.y += 0.005;
+        core.rotation.x += 0.002;
+
+        rings.forEach(r => {
+            r.mesh.rotation.x += r.speedX;
+            r.mesh.rotation.y += r.speedY;
         });
 
+        particleSystem.rotation.y -= 0.002;
+
+        // Mouse interaction
+        coreSet.rotation.y += (mouseX * 0.5 - coreSet.rotation.y) * 0.05;
+        coreSet.rotation.x += (-mouseY * 0.5 - coreSet.rotation.x) * 0.05;
+
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+        if(!container) return;
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
     });
-})();
+}).catch(err => console.error("ThreeJS load error for Data Core:", err));
+
