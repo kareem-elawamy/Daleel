@@ -209,9 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!voiceWs || voiceWs.readyState !== WebSocket.OPEN) {
             const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const ctxParam = encodeURIComponent(getPageContext());
-            voiceWs = new WebSocket(`${proto}//${location.host}/ws/dalily-chat?context=${ctxParam}`);
-            voiceWs.onopen = () => { console.log('[DalilyAI] Voice WS connected'); };
+            voiceWs = new WebSocket(`${proto}//${location.host}/ws/dalily-chat`);
+            voiceWs.onopen = () => {
+                console.log('[DalilyAI] Voice WS connected, sending init_context...');
+                voiceWs.send(JSON.stringify({ type: 'init_context', context: getPageContext() }));
+            };
             voiceWs.onmessage = e => { try { handleVoiceMsg(JSON.parse(e.data)); } catch (err) { console.error('[DalilyAI] Parse error:', err); } };
             voiceWs.onerror = err => { console.error('[DalilyAI] Voice WS error:', err); };
             voiceWs.onclose = ev => {
