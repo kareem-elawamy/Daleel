@@ -1,0 +1,750 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Net.WebSockets;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Neurix.Controllers
+{
+    public class AIChatController : ControllerBase
+    {
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<AIChatController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        private const string GeminiLiveModel = "gemini-3.1-flash-live-preview";
+        private const string GeminiTextModel = "gemini-3-flash-preview";
+        private const string GeminiLiveEndpoint = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key={0}";
+        private const string GeminiTextEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/{0}:generateContent?key={1}";
+        private const string SystemPrompt = "You are the Neurix AI Assistant, a helpful and knowledgeable guide for Neurix Engineering Group. You help users understand Neurix's divisions (Labs, Technology, AI, Club, Plus), services, and capabilities. Be professional, concise, and insightful.";
+
+        public AIChatController(IConfiguration configuration, ILogger<AIChatController> logger, IHttpClientFactory httpClientFactory)
+        {
+            _configuration = configuration;
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
+        }
+
+        // ── TEXT FLOW: HTTP POST → Gemini REST API ──
+
+        [HttpPost("/api/ai/chat")]
+        public async Task<IActionResult> TextChat([FromBody] TextChatRequest request)
+        {
+            var apiKey = _configuration["Gemini:ApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey))
+                return StatusCode(503, new { error = "AI service not configured." });
+
+            if (request?.History == null || request.History.Count == 0)
+                return BadRequest(new { error = "Conversation history is required." });
+
+            try
+            {
+                var url = string.Format(GeminiTextEndpoint, GeminiTextModel, apiKey);
+                var payload = new
+                {
+                    contents = request.History.Select(m => new
+                    {
+                        role = m.Role,
+                        parts = new[] { new { text = m.Text } }
+                    }).ToArray(),
+                    systemInstruction = new { parts = new[] { new { text = SystemPrompt } } },
+                    generationConfig = new { temperature = 0.7, maxOutputTokens = 1024 }
+                };
+
+                var client = _httpClientFactory.CreateClient();
+                var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+                var resp = await client.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+                var body = await resp.Content.ReadAsStringAsync();
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    _logger.LogError("[TextChat] Gemini error: {Status} {Body}", resp.StatusCode, body);
+                    return StatusCode(502, new { error = "AI service returned an error.", detail = body });
+                }
+
+                var geminiResp = JsonSerializer.Deserialize<JsonElement>(body);
+                var text = "";
+                if (geminiResp.TryGetProperty("candidates", out var cands))
+                {
+                    var first = cands.EnumerateArray().FirstOrDefault();
+                    if (first.TryGetProperty("content", out var c) && c.TryGetProperty("parts", out var p))
+                        foreach (var part in p.EnumerateArray())
+                            if (part.TryGetProperty("text", out var t)) text += t.GetString();
+                }
+                return Ok(new { text });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[TextChat] Error");
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+
+        // ── VOICE FLOW: WebSocket → Gemini Live API (AUDIO only) ──
+
+        [Route("/ws/chat")]
+        public async Task VoiceWebSocket()
+        {
+            if (!HttpContext.WebSockets.IsWebSocketRequest) { HttpContext.Response.StatusCode = 400; return; }
+            var apiKey = _configuration["Gemini:ApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey)) { HttpContext.Response.StatusCode = 503; return; }
+            using var clientWs = await HttpContext.WebSockets.AcceptWebSocketAsync();
+            await VoiceProxy(clientWs, apiKey);
+        }
+
+        private async Task VoiceProxy(WebSocket clientWs, string apiKey)
+        {
+            using var geminiWs = new ClientWebSocket();
+            var cts = new CancellationTokenSource();
+            try
+            {
+                var geminiUri = string.Format(GeminiLiveEndpoint, apiKey);
+                _logger.LogWarning("[DIAG] Connecting to Gemini Live at: {Uri}", geminiUri.Replace(apiKey, "***"));
+                await geminiWs.ConnectAsync(new Uri(geminiUri), cts.Token);
+                _logger.LogWarning("[DIAG] ✅ Connected to Gemini Live. State: {S}", geminiWs.State);
+
+                // ═══════════════════════════════════════════════════════════
+                // SETUP MESSAGE — per API reference (ai.google.dev/api/live):
+                //
+                // Client message wrapper (line 336):
+                //   { "setup": BidiGenerateContentSetup, ... }
+                //
+                // BidiGenerateContentSetup (line 323):
+                //   { "model": string, "generationConfig": { "responseModalities": [...], "speechConfig": {...} }, "systemInstruction": {...} }
+                //
+                // Top-level key = "setup" (NOT "config")
+                // responseModalities goes INSIDE generationConfig
+                // ═══════════════════════════════════════════════════════════
+                var setupPayload = new
+                {
+                    setup = new
+                    {
+                        model = $"models/{GeminiLiveModel}",
+                        generationConfig = new
+                        {
+                            responseModalities = new[] { "AUDIO" },
+                            speechConfig = new
+                            {
+                                voiceConfig = new
+                                {
+                                    prebuiltVoiceConfig = new
+                                    {
+                                        voiceName = "Aoede"
+                                    }
+                                }
+                            }
+                        },
+                        systemInstruction = new
+                        {
+                            parts = new[] { new { text = SystemPrompt } }
+                        }
+                    }
+                };
+
+                var setupJson = JsonSerializer.Serialize(setupPayload, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    WriteIndented = true
+                });
+                _logger.LogWarning("[DIAG] Sending Setup JSON:\n{Json}", setupJson);
+
+                await SendJson(geminiWs, setupPayload, cts.Token);
+                _logger.LogWarning("[DIAG] ✅ Setup sent. Gemini WS State: {S}", geminiWs.State);
+
+                // Wait for setup response
+                _logger.LogWarning("[DIAG] Waiting for Gemini setup response...");
+                var setupResp = await ReceiveJson(geminiWs, cts.Token);
+
+                if (setupResp == null)
+                {
+                    _logger.LogError("[DIAG] ❌ Setup response was NULL. Gemini WS State: {S}, CloseStatus: {CS}",
+                        geminiWs.State, geminiWs.CloseStatus);
+                    await SendError(clientWs, "Voice AI did not respond.");
+                    return;
+                }
+
+                var respText = setupResp.RootElement.ToString();
+                _logger.LogWarning("[DIAG] ✅ Gemini setup response:\n{R}", respText);
+
+                if (setupResp.RootElement.TryGetProperty("error", out var errProp))
+                {
+                    _logger.LogError("[DIAG] ❌ Gemini returned ERROR: {E}", errProp.ToString());
+                    await SendError(clientWs, $"Gemini error: {errProp}");
+                    return;
+                }
+
+                // Notify frontend
+                await SendText(clientWs, JsonSerializer.Serialize(new { type = "voiceReady" }), cts.Token);
+                _logger.LogWarning("[DIAG] ✅ Sent voiceReady to client. Starting relay loops.");
+
+                var t1 = AudioRelay(clientWs, geminiWs, cts);
+                var t2 = GeminiRelay(geminiWs, clientWs, cts);
+                var completed = await Task.WhenAny(t1, t2);
+                _logger.LogWarning("[DIAG] Relay loop exited: {Loop}", completed == t1 ? "AudioRelay" : "GeminiRelay");
+                cts.Cancel();
+                try { await Task.WhenAll(t1, t2); } catch (OperationCanceledException) { }
+            }
+            catch (WebSocketException ex)
+            {
+                _logger.LogError(ex, "[DIAG] ❌ WebSocket error. Gemini: {GS}, Client: {CS}", geminiWs.State, clientWs.State);
+                await SendError(clientWs, "Voice connection failed.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DIAG] ❌ Unexpected error");
+                await SendError(clientWs, "Voice connection failed.");
+            }
+            finally
+            {
+                _logger.LogWarning("[DIAG] Cleanup. Client: {C}, Gemini: {G}", clientWs.State, geminiWs.State);
+                if (clientWs.State == WebSocketState.Open) try { await clientWs.CloseAsync(WebSocketCloseStatus.NormalClosure, "Done", CancellationToken.None); } catch { }
+                if (geminiWs.State == WebSocketState.Open) try { await geminiWs.CloseAsync(WebSocketCloseStatus.NormalClosure, "Done", CancellationToken.None); } catch { }
+            }
+        }
+
+        private async Task AudioRelay(WebSocket client, ClientWebSocket gemini, CancellationTokenSource cts)
+        {
+            var buf = new byte[1024 * 16];
+            try
+            {
+                while (!cts.Token.IsCancellationRequested && client.State == WebSocketState.Open && gemini.State == WebSocketState.Open)
+                {
+                    var r = await client.ReceiveAsync(new ArraySegment<byte>(buf), cts.Token);
+                    if (r.CloseStatus.HasValue) break;
+                    if (r.MessageType != WebSocketMessageType.Text) continue;
+                    var msg = JsonSerializer.Deserialize<JsonElement>(Encoding.UTF8.GetString(buf, 0, r.Count));
+                    if (msg.TryGetProperty("type", out var tp) && tp.GetString() == "audio" && msg.TryGetProperty("data", out var d))
+                        await SendJson(gemini, new { realtimeInput = new { audio = new { data = d.GetString(), mimeType = "audio/pcm;rate=16000" } } }, cts.Token);
+                }
+            }
+            catch (OperationCanceledException) { }
+            catch (WebSocketException) { }
+        }
+
+        private async Task GeminiRelay(ClientWebSocket gemini, WebSocket client, CancellationTokenSource cts)
+        {
+            var buf = new byte[1024 * 64];
+            try
+            {
+                while (!cts.Token.IsCancellationRequested && gemini.State == WebSocketState.Open && client.State == WebSocketState.Open)
+                {
+                    using var ms = new MemoryStream();
+                    WebSocketReceiveResult r;
+                    do { r = await gemini.ReceiveAsync(new ArraySegment<byte>(buf), cts.Token); ms.Write(buf, 0, r.Count); } while (!r.EndOfMessage);
+                    if (r.CloseStatus.HasValue) break;
+                    if (r.MessageType == WebSocketMessageType.Close) break;
+                    var srv = JsonSerializer.Deserialize<JsonElement>(Encoding.UTF8.GetString(ms.ToArray()));
+                    if (srv.TryGetProperty("setupComplete", out _)) continue;
+                    if (!srv.TryGetProperty("serverContent", out var sc)) continue;
+
+                    if (sc.TryGetProperty("modelTurn", out var mt) && mt.TryGetProperty("parts", out var parts))
+                        foreach (var part in parts.EnumerateArray())
+                            if (part.TryGetProperty("inlineData", out var id))
+                                await SendText(client, JsonSerializer.Serialize(new { type = "audio", data = id.GetProperty("data").GetString(), mimeType = id.TryGetProperty("mimeType", out var m) ? m.GetString() : "audio/pcm;rate=24000" }), cts.Token);
+
+                    if (sc.TryGetProperty("outputTranscription", out var ot) && ot.TryGetProperty("text", out var otT))
+                        await SendText(client, JsonSerializer.Serialize(new { type = "voiceTranscript", sender = "ai", text = otT.GetString() }), cts.Token);
+                    if (sc.TryGetProperty("inputTranscription", out var it) && it.TryGetProperty("text", out var itT))
+                        await SendText(client, JsonSerializer.Serialize(new { type = "voiceTranscript", sender = "user", text = itT.GetString() }), cts.Token);
+                    if (sc.TryGetProperty("turnComplete", out var tc) && tc.GetBoolean())
+                        await SendText(client, JsonSerializer.Serialize(new { type = "turnComplete" }), cts.Token);
+                }
+            }
+            catch (OperationCanceledException) { }
+            catch (WebSocketException) { }
+        }
+
+        // Helpers
+        static async Task SendJson(ClientWebSocket ws, object p, CancellationToken ct) { var b = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(p, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull })); await ws.SendAsync(new ArraySegment<byte>(b), WebSocketMessageType.Text, true, ct); }
+        static async Task<JsonDocument?> ReceiveJson(ClientWebSocket ws, CancellationToken ct)
+        {
+            var buf = new byte[1024 * 16];
+            using var ms = new MemoryStream();
+            WebSocketReceiveResult r;
+            do
+            {
+                r = await ws.ReceiveAsync(new ArraySegment<byte>(buf), ct);
+                ms.Write(buf, 0, r.Count);
+            } while (!r.EndOfMessage);
+
+            if (r.MessageType == WebSocketMessageType.Close)
+            {
+                // Gemini sent a Close frame instead of a response
+                Console.WriteLine($"[DIAG] ❌ Gemini sent CLOSE frame. Status: {r.CloseStatus}, Desc: {r.CloseStatusDescription}");
+                return null;
+            }
+            if (r.MessageType == WebSocketMessageType.Text || r.MessageType == WebSocketMessageType.Binary)
+            {
+                ms.Seek(0, SeekOrigin.Begin);
+                return await JsonDocument.ParseAsync(ms, cancellationToken: ct);
+            }
+            Console.WriteLine($"[DIAG] ⚠ Unexpected message type from Gemini: {r.MessageType}");
+            return null;
+        }
+        static async Task SendText(WebSocket ws, string m, CancellationToken ct) { if (ws.State != WebSocketState.Open) return; await ws.SendAsync(Encoding.UTF8.GetBytes(m), WebSocketMessageType.Text, true, ct); }
+        static async Task SendError(WebSocket ws, string e) { try { if (ws.State == WebSocketState.Open) await ws.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { type = "error", text = e })), WebSocketMessageType.Text, true, CancellationToken.None); } catch { } }
+    }
+
+    public class TextChatRequest { [JsonPropertyName("history")] public List<ChatMessage> History { get; set; } = new(); }
+    public class ChatMessage { [JsonPropertyName("role")] public string Role { get; set; } = "user"; [JsonPropertyName("text")] public string Text { get; set; } = ""; }
+}
+/**
+ * Neurix AI Chat — Enterprise Dual-Path Architecture
+ * TEXT  → fetch() POST /api/ai/chat → Gemini REST API
+ * VOICE → WebSocket /ws/chat → Gemini Live API (AUDIO only)
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const fab          = document.getElementById('ai-chat-fab');
+    const chatWindow   = document.getElementById('ai-chat-window');
+    const closeBtn     = document.getElementById('ai-chat-close');
+    const reconnectBtn = document.getElementById('ai-chat-reconnect');
+    const inputField   = document.getElementById('ai-chat-input');
+    const sendBtn      = document.getElementById('ai-chat-send');
+    const micBtn       = document.getElementById('ai-chat-mic');
+    const micPulse     = document.getElementById('ai-mic-pulse');
+    const messagesArea = document.getElementById('ai-chat-messages');
+    const statusDot    = document.getElementById('ai-status-dot');
+    const statusLabel  = document.getElementById('ai-status-label');
+    const statusRing   = document.getElementById('ai-status-ring');
+    const connBanner   = document.getElementById('ai-connection-banner');
+
+    if (!fab || !chatWindow || !messagesArea) return;
+
+    // ── State ──
+    let isOpen = false;
+    let chatHistory = []; // In-memory context: [{role,text}]
+    let isTextLoading = false;
+
+    // Voice state
+    let voiceWs = null;
+    let isRecording = false;
+    let audioCtx = null;
+    let mediaStream = null;
+    let processor = null;
+    let playbackCtx = null;
+    let thinkingEl = null;
+    let nextAudioPlayTime = 0;
+    let currentAiStreamTextNode = null;
+    let vadAnalyser = null;
+    let vadData = null;
+    let vadSilenceTimer = null;
+    let isSpeaking = false;
+    let rafId = null;
+
+    const gsapOk = () => typeof gsap !== 'undefined';
+
+    // ── Connection State ──
+    const setState = (state, detail) => {
+        const cfgs = {
+            idle:        { dot: 'bg-cyan',       lbl: 'Online',        cls: 'text-cyan-600 dark:text-cyan-400' },
+            connecting:  { dot: 'bg-amber-400',  lbl: 'Connecting...', cls: 'text-amber-600 dark:text-amber-400' },
+            listening:   { dot: 'bg-red-500',    lbl: 'Listening...',  cls: 'text-red-500 dark:text-red-400' },
+            processing:  { dot: 'bg-cyan',       lbl: 'Processing...', cls: 'text-cyan-600 dark:text-cyan-400' },
+            error:       { dot: 'bg-red-500',    lbl: 'Error',         cls: 'text-red-500 dark:text-red-400' }
+        };
+        const c = cfgs[state] || cfgs.idle;
+        if (statusDot) {
+            statusDot.className = `w-1.5 h-1.5 rounded-full transition-colors duration-300 ${c.dot}`;
+            if (state === 'connecting' || state === 'listening') statusDot.classList.add('animate-pulse');
+        }
+        if (statusLabel) { statusLabel.textContent = c.lbl; statusLabel.className = `transition-colors duration-300 ${c.cls}`; }
+        if (connBanner) {
+            if (state === 'error' && detail) {
+                connBanner.className = 'mb-3 px-3 py-2 rounded-xl text-xs text-center font-medium border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700/30 text-red-600 dark:text-red-300';
+                connBanner.textContent = detail; connBanner.classList.remove('hidden');
+            } else { connBanner.classList.add('hidden'); }
+        }
+        if (reconnectBtn) reconnectBtn.classList.toggle('hidden', state !== 'error');
+    };
+
+    // ── UI Toggle ──
+    const toggleChat = () => {
+        isOpen = !isOpen;
+        if (isOpen) {
+            chatWindow.classList.remove('hidden');
+            setTimeout(() => { chatWindow.classList.remove('scale-95', 'opacity-0'); chatWindow.classList.add('scale-100', 'opacity-100'); }, 10);
+            if (inputField) inputField.focus();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            setState('idle');
+        } else {
+            chatWindow.classList.remove('scale-100', 'opacity-100');
+            chatWindow.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => chatWindow.classList.add('hidden'), 300);
+        }
+    };
+    fab.addEventListener('click', toggleChat);
+    if (closeBtn) closeBtn.addEventListener('click', toggleChat);
+
+    // ═══════════════════════════════════════════════
+    //  TEXT FLOW — fetch() POST /api/ai/chat
+    // ═══════════════════════════════════════════════
+    const handleSend = async () => {
+        const text = (inputField?.value || '').trim();
+        if (!text || isTextLoading) return;
+
+        appendMessage('User', text);
+        chatHistory.push({ role: 'user', text });
+        inputField.value = '';
+        isTextLoading = true;
+        setState('processing');
+        showThinking();
+
+        try {
+            const resp = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ history: chatHistory })
+            });
+            removeThinking();
+
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({}));
+                console.error('[NeurixAI] Text API error:', resp.status, err);
+                sysMsg(err.error || `Server error (${resp.status})`, 'error');
+                setState('error', err.error);
+                isTextLoading = false;
+                return;
+            }
+
+            const data = await resp.json();
+            const aiText = data.text || '';
+            appendMessage('AI', aiText);
+            chatHistory.push({ role: 'model', text: aiText });
+            setState('idle');
+        } catch (e) {
+            removeThinking();
+            console.error('[NeurixAI] Network error:', e);
+            sysMsg('Network error. Check your connection.', 'error');
+            setState('error', 'Network error');
+        }
+        isTextLoading = false;
+    };
+
+    if (sendBtn) sendBtn.addEventListener('click', handleSend);
+    if (inputField) inputField.addEventListener('keypress', e => { if (e.key === 'Enter') handleSend(); });
+
+    // ═══════════════════════════════════════════════
+    //  VOICE FLOW — WebSocket /ws/chat (AUDIO only)
+    // ═══════════════════════════════════════════════
+    if (micBtn) micBtn.addEventListener('click', async () => {
+        if (!isRecording) await startVoice();
+        else stopVoice();
+    });
+
+    const startVoice = async () => {
+        // Get mic permission first
+        // NOTE: Do NOT constrain sampleRate here. Browsers may reject unsupported rates
+        // (e.g., 16000 on systems natively running 44100/48000).
+        // We resample to 16kHz in the AudioContext processing callback.
+        try {
+            console.log('[NeurixAI] Requesting microphone access...');
+            mediaStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    channelCount: 1,
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }
+            });
+            const track = mediaStream.getAudioTracks()[0];
+            const settings = track.getSettings();
+            console.log(`[NeurixAI] ✅ Mic granted. Track: ${track.label}, Rate: ${settings.sampleRate || 'unknown'}Hz, Channels: ${settings.channelCount || 'unknown'}`);
+        } catch (err) {
+            console.error('[NeurixAI] ❌ getUserMedia FAILED.');
+            console.error('[NeurixAI]   name:', err.name);
+            console.error('[NeurixAI]   message:', err.message);
+            console.error('[NeurixAI]   code:', err.code);
+            console.error('[NeurixAI]   stack:', err.stack);
+            console.error('[NeurixAI]   constraint:', err.constraint || 'none');
+            const msgs = {
+                NotFoundError: 'No microphone found on this device.',
+                NotAllowedError: 'Microphone permission denied. Please allow access in browser settings.',
+                NotReadableError: 'Microphone is in use by another application.',
+                OverconstrainedError: `Browser rejected audio constraints: ${err.constraint || 'unknown'}.`,
+                AbortError: 'Microphone request was aborted.',
+                SecurityError: 'Microphone access blocked by security policy (requires HTTPS).'
+            };
+            sysMsg(msgs[err.name] || `Microphone error: ${err.name} — ${err.message}`, 'error');
+            return;
+        }
+
+        isRecording = true;
+        setState('connecting');
+        micBtn.classList.add('text-red-500', 'bg-red-100', 'dark:bg-red-900/30');
+        micBtn.classList.remove('text-slate-500', 'dark:text-slate-400', 'bg-slate-100', 'dark:bg-slate-800');
+
+        // Mic pulse is now driven dynamically by VAD
+        if (gsapOk() && micPulse && micPulse.parentNode) gsap.set(micPulse, { opacity: 0, scale: 1 });
+
+        // Connect WebSocket if needed
+        if (!voiceWs || voiceWs.readyState !== WebSocket.OPEN) {
+            const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            voiceWs = new WebSocket(`${proto}//${location.host}/ws/chat`);
+            voiceWs.onopen = () => { console.log('[NeurixAI] Voice WS connected'); };
+            voiceWs.onmessage = e => { try { handleVoiceMsg(JSON.parse(e.data)); } catch (err) { console.error('[NeurixAI] Parse error:', err); } };
+            voiceWs.onerror = err => { console.error('[NeurixAI] Voice WS error:', err); };
+            voiceWs.onclose = ev => {
+                console.warn(`[NeurixAI] Voice WS closed — code:${ev.code} reason:${ev.reason}`);
+                if (isRecording) stopVoice();
+            };
+
+            // Wait for voiceReady — use try/catch so 'return' exits startVoice()
+            try {
+                await new Promise((res, rej) => {
+                    const origMsg = voiceWs.onmessage;
+                    voiceWs.onmessage = e => {
+                        try {
+                            const m = JSON.parse(e.data);
+                            if (m.type === 'voiceReady') { voiceWs.onmessage = origMsg; res(); }
+                            else if (m.type === 'error') { rej(new Error(m.text)); }
+                            else if (origMsg) origMsg(e);
+                        } catch (err) { rej(err); }
+                    };
+                    voiceWs.onerror = () => rej(new Error('WS error'));
+                    setTimeout(() => rej(new Error('Voice setup timeout')), 15000);
+                });
+            } catch (err) {
+                console.error('[NeurixAI] Voice setup failed:', err);
+                sysMsg(err.message || 'Voice setup failed.', 'error');
+                stopVoice();
+                return; // ← This now exits startVoice(), preventing audio capture with null stream
+            }
+        }
+
+        // Guard: ensure mediaStream wasn't nulled by stopVoice() during WS setup
+        if (!mediaStream || !mediaStream.active) {
+            console.error('[NeurixAI] MediaStream is null/inactive after WS setup. Aborting audio capture.');
+            sysMsg('Microphone stream lost during connection. Please try again.', 'error');
+            stopVoice();
+            return;
+        }
+
+        setState('listening');
+        sysMsg('Listening... Click mic again to stop.', 'info');
+
+        // Start audio capture — robust initialization
+        try {
+            // CRITICAL: Do NOT pass { sampleRate: 16000 } to AudioContext.
+            // Most browsers only support their native rate (typically 44100 or 48000).
+            // Passing an unsupported rate throws a NotSupportedError / DOMException.
+            // We resample to 16kHz in the processing callback instead.
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            console.log(`[NeurixAI] AudioContext created. Native sampleRate: ${audioCtx.sampleRate}Hz, state: ${audioCtx.state}`);
+
+            // CRITICAL: Resume the AudioContext immediately.
+            // Browsers suspend AudioContext until a user gesture triggers resume().
+            if (audioCtx.state === 'suspended') {
+                console.log('[NeurixAI] AudioContext suspended — calling resume()...');
+                await audioCtx.resume();
+                console.log(`[NeurixAI] AudioContext resumed. State: ${audioCtx.state}`);
+            }
+
+            const nativeRate = audioCtx.sampleRate;
+            const targetRate = 16000;
+            const downsampleRatio = Math.round(nativeRate / targetRate);
+
+            console.log(`[NeurixAI] Resample ratio: ${downsampleRatio} (${nativeRate} → ${targetRate}Hz)`);
+
+            const src = audioCtx.createMediaStreamSource(mediaStream);
+            processor = audioCtx.createScriptProcessor(2048, 1, 1);
+
+            // VAD Analyser
+            vadAnalyser = audioCtx.createAnalyser();
+            vadAnalyser.fftSize = 256;
+            vadData = new Uint8Array(vadAnalyser.frequencyBinCount);
+            src.connect(vadAnalyser);
+
+            const checkVolume = () => {
+                if (!isRecording) return;
+                vadAnalyser.getByteFrequencyData(vadData);
+                let sum = 0;
+                for (let i = 0; i < vadData.length; i++) sum += vadData[i];
+                let avg = sum / vadData.length;
+
+                if (gsapOk() && micPulse && micPulse.parentNode) {
+                    const scale = 1 + (avg / 255) * 1.5;
+                    gsap.to(micPulse, { scale: scale, opacity: avg > 5 ? Math.min(0.8, avg / 50) : 0, duration: 0.1 });
+                }
+
+                if (avg > 5) {
+                    if (!isSpeaking) {
+                        isSpeaking = true;
+                        setState('listening');
+                        removeThinking();
+                    }
+                    if (vadSilenceTimer) { clearTimeout(vadSilenceTimer); vadSilenceTimer = null; }
+                } else {
+                    if (isSpeaking && !vadSilenceTimer) {
+                        vadSilenceTimer = setTimeout(() => {
+                            isSpeaking = false;
+                            setState('processing');
+                            showThinking();
+                        }, 1000);
+                    }
+                }
+                rafId = requestAnimationFrame(checkVolume);
+            };
+            checkVolume();
+
+            processor.onaudioprocess = e => {
+                if (!isRecording || !voiceWs || voiceWs.readyState !== WebSocket.OPEN) return;
+
+                const inputData = e.inputBuffer.getChannelData(0);
+
+                // Downsample from native rate to 16kHz by picking every Nth sample
+                const outputLength = Math.floor(inputData.length / downsampleRatio);
+                const i16 = new Int16Array(outputLength);
+                for (let i = 0; i < outputLength; i++) {
+                    const s = Math.max(-1, Math.min(1, inputData[i * downsampleRatio]));
+                    i16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                }
+
+                // Base64 encode the 16-bit PCM bytes
+                const bytes = new Uint8Array(i16.buffer);
+                let bin = '';
+                for (let j = 0; j < bytes.length; j++) bin += String.fromCharCode(bytes[j]);
+                voiceWs.send(JSON.stringify({ type: 'audio', data: btoa(bin) }));
+            };
+
+            src.connect(processor);
+            processor.connect(audioCtx.destination);
+            console.log('[NeurixAI] ✅ Audio pipeline active. Streaming 16kHz PCM to Gemini.');
+        } catch (err) {
+            // Granular error diagnostics
+            console.error('[NeurixAI] ❌ Audio capture initialization FAILED.');
+            console.error('[NeurixAI]   Error name:', err.name);
+            console.error('[NeurixAI]   Error message:', err.message);
+            console.error('[NeurixAI]   Error code:', err.code);
+            console.error('[NeurixAI]   Stack:', err.stack);
+            console.error('[NeurixAI]   AudioContext state:', audioCtx ? audioCtx.state : 'null');
+            console.error('[NeurixAI]   MediaStream active:', mediaStream ? mediaStream.active : 'null');
+            console.error('[NeurixAI]   MediaStream tracks:', mediaStream ? mediaStream.getTracks().map(t => `${t.kind}:${t.readyState}:${t.label}`).join(', ') : 'null');
+            sysMsg(`Audio capture failed: ${err.name} — ${err.message}`, 'error');
+            stopVoice();
+        }
+    };
+
+    const stopVoice = () => {
+        isRecording = false;
+        if (processor) { processor.disconnect(); processor = null; }
+        if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
+        if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+
+        micBtn?.classList.remove('text-red-500', 'bg-red-100', 'dark:bg-red-900/30');
+        micBtn?.classList.add('text-slate-500', 'dark:text-slate-400', 'bg-slate-100', 'dark:bg-slate-800');
+        if (micPulseTl) { micPulseTl.kill(); micPulseTl = null; }
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        if (vadSilenceTimer) { clearTimeout(vadSilenceTimer); vadSilenceTimer = null; }
+        isSpeaking = false;
+        if (gsapOk() && micPulse && micPulse.parentNode) gsap.set(micPulse, { opacity: 0, scale: 1 });
+
+        setState('idle');
+        // Don't close WS immediately — let it drain. Close after turnComplete or timeout.
+    };
+
+    const handleVoiceMsg = msg => {
+        switch (msg.type) {
+            case 'audio': 
+                removeThinking();
+                setState('idle');
+                playAudio(msg.data, msg.mimeType); 
+                break;
+            case 'voiceTranscript':
+                if (msg.sender === 'user') {
+                    appendMessage('User', msg.text);
+                } else {
+                    removeThinking();
+                    setState('idle');
+                    streamAIText(msg.text);
+                }
+                break;
+            case 'turnComplete': 
+                removeThinking(); 
+                currentAiStreamTextNode = null;
+                break;
+            case 'error': sysMsg(msg.text || 'Voice error.', 'error'); break;
+            case 'voiceReady': break;
+            default: console.log('[NeurixAI] Unknown voice msg:', msg);
+        }
+    };
+
+    // ── Audio Playback ──
+    const playAudio = (b64, mime) => {
+        try {
+            if (!playbackCtx) {
+                playbackCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+                nextAudioPlayTime = playbackCtx.currentTime;
+            }
+            const bin = atob(b64); const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            const i16 = new Int16Array(bytes.buffer); const f32 = new Float32Array(i16.length);
+            for (let i = 0; i < i16.length; i++) f32[i] = i16[i] / 32768.0;
+            const buf = playbackCtx.createBuffer(1, f32.length, 24000);
+            buf.getChannelData(0).set(f32);
+            const s = playbackCtx.createBufferSource(); s.buffer = buf; s.connect(playbackCtx.destination); 
+            
+            // Queue management: schedule exactly back-to-back, but don't fall behind current time
+            if (nextAudioPlayTime < playbackCtx.currentTime) {
+                nextAudioPlayTime = playbackCtx.currentTime + 0.05; // Small buffer if we underran
+            }
+            s.start(nextAudioPlayTime);
+            nextAudioPlayTime += buf.duration;
+        } catch (e) { console.error('[NeurixAI] Playback error:', e); }
+    };
+
+    const streamAIText = (text) => {
+        if (!currentAiStreamTextNode) {
+            const div = document.createElement('div');
+            div.className = 'flex gap-3 mt-4';
+            div.innerHTML = `<div class="w-8 h-8 rounded-full bg-cyan/10 flex-shrink-0 flex items-center justify-center text-cyan mt-1"><i data-lucide="bot" class="w-4 h-4"></i></div><div class="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-white/5 rounded-2xl rounded-tl-sm p-3 text-sm text-slate-700 dark:text-slate-300 shadow-sm leading-relaxed max-w-[85%] ai-stream-text"></div>`;
+            messagesArea.appendChild(div);
+            currentAiStreamTextNode = div.querySelector('.ai-stream-text');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        currentAiStreamTextNode.textContent += text;
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    };
+
+    // ── Message Rendering ──
+    const appendMessage = (sender, text) => {
+        const div = document.createElement('div');
+        div.className = 'flex gap-3 mt-4';
+        if (sender === 'User') {
+            div.classList.add('flex-row-reverse');
+            div.innerHTML = `<div class="bg-cyan/10 border border-cyan/20 rounded-2xl rounded-tr-sm p-3 text-sm text-cyan-900 dark:text-cyan-100 shadow-sm leading-relaxed max-w-[85%]">${esc(text)}</div>`;
+        } else {
+            div.innerHTML = `<div class="w-8 h-8 rounded-full bg-cyan/10 flex-shrink-0 flex items-center justify-center text-cyan mt-1"><i data-lucide="bot" class="w-4 h-4"></i></div><div class="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-white/5 rounded-2xl rounded-tl-sm p-3 text-sm text-slate-700 dark:text-slate-300 shadow-sm leading-relaxed max-w-[85%]">${esc(text)}</div>`;
+        }
+        messagesArea.appendChild(div);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
+
+    const sysMsg = (text, sev = 'info') => {
+        const colors = { info: 'bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700/40', warn: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-700/30', error: 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 border-red-200 dark:border-red-700/30' };
+        const icons = { info: 'info', warn: 'alert-triangle', error: 'x-circle' };
+        const div = document.createElement('div'); div.className = 'flex justify-center mt-3';
+        div.innerHTML = `<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border ${colors[sev] || colors.info}"><i data-lucide="${icons[sev] || 'info'}" class="w-3 h-3"></i><span>${esc(text)}</span></div>`;
+        messagesArea.appendChild(div); messagesArea.scrollTop = messagesArea.scrollHeight;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
+
+    // ── Thinking Indicator ──
+    const showThinking = () => {
+        if (thinkingEl) return;
+        thinkingEl = document.createElement('div'); thinkingEl.className = 'flex gap-3 mt-4';
+        thinkingEl.innerHTML = `<div class="w-8 h-8 rounded-full bg-cyan/10 flex-shrink-0 flex items-center justify-center text-cyan mt-1"><i data-lucide="bot" class="w-4 h-4"></i></div><div class="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-white/5 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex items-center gap-1.5"><span class="ai-dot w-2 h-2 rounded-full bg-cyan/60 inline-block"></span><span class="ai-dot w-2 h-2 rounded-full bg-cyan/60 inline-block"></span><span class="ai-dot w-2 h-2 rounded-full bg-cyan/60 inline-block"></span></div>`;
+        messagesArea.appendChild(thinkingEl); messagesArea.scrollTop = messagesArea.scrollHeight;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        if (gsapOk()) {
+            const dots = thinkingEl.querySelectorAll('.ai-dot');
+            if (dots.length) thinkingTween = gsap.to(Array.from(dots), { y: -4, duration: 0.4, ease: 'power1.inOut', stagger: 0.15, repeat: -1, yoyo: true });
+        }
+    };
+    const removeThinking = () => {
+        if (thinkingTween) { thinkingTween.kill(); thinkingTween = null; }
+        if (thinkingEl) { thinkingEl.remove(); thinkingEl = null; }
+    };
+
+    const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+});
