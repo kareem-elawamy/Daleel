@@ -98,19 +98,33 @@ namespace Daleel.Controllers
             var apiKey = _configuration["Gemini:ApiKey"];
             if (string.IsNullOrWhiteSpace(apiKey)) { HttpContext.Response.StatusCode = 503; return; }
 
-            // Read page context from query string
-            var pageContext = HttpContext.Request.Query["context"].FirstOrDefault();
-
             using var clientWs = await HttpContext.WebSockets.AcceptWebSocketAsync();
-            await VoiceProxy(clientWs, apiKey, pageContext);
+            await VoiceProxy(clientWs, apiKey);
         }
 
-        private async Task VoiceProxy(WebSocket clientWs, string apiKey, string? pageContext)
+        private async Task VoiceProxy(WebSocket clientWs, string apiKey)
         {
             using var geminiWs = new ClientWebSocket();
             var cts = new CancellationTokenSource();
             try
             {
+                // ═══════════════════════════════════════════════════════════
+                // STEP 0: Read init_context from client (first message)
+                // ═══════════════════════════════════════════════════════════
+                string? pageContext = null;
+                var initBuf = new byte[1024 * 32];
+                var initResult = await clientWs.ReceiveAsync(new ArraySegment<byte>(initBuf), cts.Token);
+                if (initResult.MessageType == WebSocketMessageType.Text)
+                {
+                    var initMsg = JsonSerializer.Deserialize<JsonElement>(Encoding.UTF8.GetString(initBuf, 0, initResult.Count));
+                    if (initMsg.TryGetProperty("type", out var tp) && tp.GetString() == "init_context"
+                        && initMsg.TryGetProperty("context", out var ctx))
+                    {
+                        pageContext = ctx.GetString();
+                        _logger.LogInformation("[DIAG] Received init_context ({Len} chars)", pageContext?.Length ?? 0);
+                    }
+                }
+
                 var geminiUri = string.Format(GeminiLiveEndpoint, apiKey);
                 _logger.LogWarning("[DIAG] Connecting to Gemini Live at: {Uri}", geminiUri.Replace(apiKey, "***"));
                 await geminiWs.ConnectAsync(new Uri(geminiUri), cts.Token);
