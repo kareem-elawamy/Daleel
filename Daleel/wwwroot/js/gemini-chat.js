@@ -1,81 +1,149 @@
 /**
  * Daleel AI – SignalR Chat Client
- * Connects to /chathub, sends messages (with session history) to the
- * GeminiService, and renders AI or Human responses into the chat UI.
+ * Loaded at the bottom of Index.cshtml via @section Scripts.
+ * At this point the DOM is fully parsed, SignalR is already loaded,
+ * so we initialize immediately without any event wrapper.
  */
 (function () {
     'use strict';
 
-    // ─── State ────────────────────────────────────────────────────────────────
-    const chatHistory = [];   // { Role: 'user'|'AI', Content: string }
-    let hubConnection = null;
-    let isConnected = false;
-    let isTyping = false;
-
     // ─── DOM refs ─────────────────────────────────────────────────────────────
-    const messagesEl = document.getElementById('daleel-chat-messages');
-    const form       = document.getElementById('daleel-chat-form');
-    const input      = document.getElementById('daleel-chat-input');
-    const sendBtn    = document.getElementById('daleel-chat-send');
-    const chips      = document.querySelectorAll('.daleel-chat-chip');
+    var messagesEl = document.getElementById('daleel-chat-messages');
+    var form       = document.getElementById('daleel-chat-form');
+    var input      = document.getElementById('daleel-chat-input');
+    var sendBtn    = document.getElementById('daleel-chat-send');
+    var chips      = document.querySelectorAll('.daleel-chat-chip');
 
-    if (!messagesEl || !form || !input) return; // guard – not on this page
+    // Guard – only run if the chat widget exists on this page
+    if (!messagesEl || !form || !input) return;
 
-    // ─── Welcome message ──────────────────────────────────────────────────────
-    appendMessage('AI', 'Hello! I\'m **Daleel AI**, your strategic intelligence assistant. Ask me about global markets, trade corridors, supply chains, or economic outlooks. How can I help?');
+    // ─── State ────────────────────────────────────────────────────────────────
+    var chatHistory   = [];
+    var hubConnection = null;
+    var isConnected   = false;
+    var isTyping      = false;
 
-    // ─── Build SignalR connection ─────────────────────────────────────────────
-    function buildConnection() {
-        hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl('/chathub')
-            .withAutomaticReconnect([0, 2000, 5000, 10000])
-            .configureLogging(signalR.LogLevel.Warning)
-            .build();
+    // ══════════════════════════════════════════════════════════════
+    //  RENDER HELPERS
+    // ══════════════════════════════════════════════════════════════
 
-        hubConnection.on('ReceiveMessage', (msg) => {
-            removeTypingIndicator();
-            appendMessage(msg.Role, msg.Content);
-            chatHistory.push({ Role: msg.Role, Content: msg.Content });
-        });
-
-        hubConnection.on('ReceiveError', (error) => {
-            removeTypingIndicator();
-            appendError('An error occurred. Please try again.');
-            console.error('[Daleel Chat] Hub error:', error);
-        });
-
-        hubConnection.onreconnecting(() => {
-            isConnected = false;
-            appendSystemNote('Reconnecting…');
-        });
-
-        hubConnection.onreconnected(() => {
-            isConnected = true;
-            appendSystemNote('Reconnected.');
-        });
-
-        hubConnection.onclose(() => {
-            isConnected = false;
-        });
+    function formatContent(text) {
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,.08);padding:1px 4px;border-radius:3px;font-size:12px">$1</code>')
+            .replace(/\n/g, '<br>');
     }
 
-    async function startConnection() {
-        buildConnection();
-        try {
-            await hubConnection.start();
-            isConnected = true;
-        } catch (err) {
-            console.warn('[Daleel Chat] SignalR failed to connect, will use HTTP fallback.', err);
-            isConnected = false;
+    function scrollToBottom() {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function setSendState(disabled) {
+        if (sendBtn) sendBtn.disabled = !!disabled;
+    }
+
+    function appendMessage(role, content) {
+        var isAI = (role === 'AI' || role === 'model');
+        var wrapper = document.createElement('div');
+        wrapper.style.cssText = 'display:flex;align-items:flex-end;gap:8px;margin-bottom:12px;' + (isAI ? '' : 'justify-content:flex-end;');
+
+        if (isAI) {
+            var avatar = document.createElement('div');
+            avatar.style.cssText = 'flex-shrink:0;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#00B2EC,#0a8fb8);display:flex;align-items:center;justify-content:center;margin-bottom:2px;box-shadow:0 1px 3px rgba(0,178,236,.3)';
+            avatar.innerHTML = '<span class="material-symbols-outlined" style="color:#fff;font-size:14px;font-variation-settings:\'FILL\' 1">psychology</span>';
+            wrapper.appendChild(avatar);
         }
+
+        var bubble = document.createElement('div');
+        bubble.style.cssText = [
+            'max-width:85%',
+            'font-size:14px',
+            'line-height:1.6',
+            'padding:10px 14px',
+            'box-shadow:0 1px 2px rgba(0,0,0,.06)',
+            isAI
+                ? 'background:var(--chat-ai-bg,#f1f5f9);color:var(--chat-ai-text,#0f172a);border-radius:1rem 1rem 1rem .25rem;'
+                : 'background:#00B2EC;color:#fff;border-radius:1rem 1rem .25rem 1rem;'
+        ].join(';');
+
+        bubble.innerHTML = formatContent(content);
+        wrapper.appendChild(bubble);
+
+        wrapper.style.opacity = '0';
+        wrapper.style.transform = 'translateY(8px)';
+        wrapper.style.transition = 'opacity .3s ease, transform .3s ease';
+        messagesEl.appendChild(wrapper);
+
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                wrapper.style.opacity = '1';
+                wrapper.style.transform = 'translateY(0)';
+            });
+        });
+        scrollToBottom();
     }
 
-    startConnection();
+    function appendError(msg) {
+        var el = document.createElement('p');
+        el.style.cssText = 'text-align:center;font-size:11px;color:#f87171;padding:4px 0';
+        el.textContent = msg;
+        messagesEl.appendChild(el);
+        scrollToBottom();
+        setSendState(false);
+    }
 
-    // ─── Form submission ──────────────────────────────────────────────────────
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const text = input.value.trim();
+    function appendSystemNote(msg) {
+        var el = document.createElement('p');
+        el.style.cssText = 'text-align:center;font-size:10px;color:#94a3b8;padding:2px 0;font-style:italic';
+        el.textContent = msg;
+        messagesEl.appendChild(el);
+        scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+        isTyping = true;
+        var el = document.createElement('div');
+        el.id = 'daleel-typing';
+        el.style.cssText = 'display:flex;align-items:flex-end;gap:8px;margin-bottom:12px;';
+        el.innerHTML =
+            '<div style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#00B2EC,#0a8fb8);display:flex;align-items:center;justify-content:center;margin-bottom:2px">' +
+                '<span class="material-symbols-outlined" style="color:#fff;font-size:14px;font-variation-settings:\'FILL\' 1">psychology</span>' +
+            '</div>' +
+            '<div style="background:var(--chat-ai-bg,#f1f5f9);border-radius:1rem 1rem 1rem .25rem;padding:10px 14px;box-shadow:0 1px 2px rgba(0,0,0,.06)">' +
+                '<div style="display:flex;gap:4px;align-items:center;height:16px">' +
+                    '<span class="animate-bounce" style="width:6px;height:6px;border-radius:50%;background:#00B2EC;display:inline-block;animation-delay:0ms"></span>' +
+                    '<span class="animate-bounce" style="width:6px;height:6px;border-radius:50%;background:#00B2EC;display:inline-block;animation-delay:150ms"></span>' +
+                    '<span class="animate-bounce" style="width:6px;height:6px;border-radius:50%;background:#00B2EC;display:inline-block;animation-delay:300ms"></span>' +
+                '</div>' +
+            '</div>';
+        messagesEl.appendChild(el);
+        scrollToBottom();
+    }
+
+    function removeTypingIndicator() {
+        isTyping = false;
+        var el = document.getElementById('daleel-typing');
+        if (el) el.remove();
+        setSendState(false);
+    }
+
+    function hideChips() {
+        var c = document.getElementById('daleel-chat-chips');
+        if (!c) return;
+        c.style.transition = 'opacity .3s';
+        c.style.opacity = '0';
+        setTimeout(function () { c.style.display = 'none'; }, 300);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  CORE SEND LOGIC
+    // ══════════════════════════════════════════════════════════════
+
+    function sendMessage(text) {
+        text = (text || '').trim();
         if (!text || isTyping) return;
 
         input.value = '';
@@ -85,157 +153,111 @@
         showTypingIndicator();
         setSendState(true);
 
-        if (isConnected) {
-            try {
-                await hubConnection.invoke('SendMessage', text, 'AI', chatHistory.slice(0, -1));
-            } catch (err) {
-                removeTypingIndicator();
-                appendError('Failed to send message. Please refresh and try again.');
-                console.error('[Daleel Chat]', err);
-                setSendState(false);
-            }
-        } else {
-            // HTTP fallback – POST directly to Gemini via a simple API endpoint
-            try {
-                const res = await fetch('/api/gemini/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, history: chatHistory.slice(0, -1) })
+        var historySnapshot = chatHistory.slice(0, -1);
+
+        if (isConnected && hubConnection) {
+            hubConnection.invoke('SendMessage', text, 'AI', historySnapshot)
+                .catch(function (err) {
+                    removeTypingIndicator();
+                    appendError('Failed to send. Please try again.');
+                    console.error('[Daleel Chat]', err);
                 });
-                const data = await res.json();
+        } else {
+            // HTTP fallback
+            fetch('/api/gemini/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, history: historySnapshot })
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
                 removeTypingIndicator();
-                const reply = data.reply || 'Sorry, I could not generate a response.';
+                var reply = data.reply || 'Sorry, I could not generate a response.';
                 appendMessage('AI', reply);
                 chatHistory.push({ Role: 'AI', Content: reply });
-            } catch (err) {
+            })
+            .catch(function () {
                 removeTypingIndicator();
                 appendError('Failed to reach the AI service. Please try again later.');
-            }
-            setSendState(false);
+            });
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  EVENT LISTENERS  (registered immediately, independent of SignalR)
+    // ══════════════════════════════════════════════════════════════
+
+    // Intercept form submit – prevent any navigation
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        sendMessage(input.value);
+        return false;
+    });
+
+    // Send button explicit click (belt-and-suspenders)
+    if (sendBtn) {
+        sendBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            sendMessage(input.value);
+        });
+    }
+
+    // Enter key in input
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage(input.value);
         }
     });
 
-    // ─── Quick-suggestion chips ───────────────────────────────────────────────
-    chips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            const query = chip.dataset.query || chip.textContent.trim();
-            input.value = query;
-            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    // Quick-suggestion chips
+    chips.forEach(function (chip) {
+        chip.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            sendMessage(chip.dataset.query || chip.textContent);
         });
     });
 
-    // ─── Render helpers ───────────────────────────────────────────────────────
-    function appendMessage(role, content) {
-        const isAI = role === 'AI' || role === 'model';
-        const wrapper = document.createElement('div');
-        wrapper.className = `flex items-end gap-2 mb-3 ${isAI ? '' : 'justify-end'}`;
+    // ══════════════════════════════════════════════════════════════
+    //  SIGNALR CONNECTION (optional enhancement – HTTP fallback always active)
+    // ══════════════════════════════════════════════════════════════
 
-        const bubble = document.createElement('div');
-        bubble.className = isAI
-            ? 'max-w-[85%] bg-slate-100 dark:bg-[#112240] text-brand-navy dark:text-white text-sm font-[\'Inter\'] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm leading-relaxed'
-            : 'max-w-[85%] bg-[#00B2EC] text-white text-sm font-[\'Inter\'] rounded-2xl rounded-br-sm px-4 py-3 shadow-sm leading-relaxed';
+    if (typeof signalR !== 'undefined') {
+        hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl('/chathub')
+            .withAutomaticReconnect([0, 2000, 5000, 10000])
+            .configureLogging(signalR.LogLevel.Warning)
+            .build();
 
-        // Basic markdown: bold, code, line breaks
-        bubble.innerHTML = formatContent(content);
-
-        if (isAI) {
-            const avatar = document.createElement('div');
-            avatar.className = 'shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-[#00B2EC] to-[#0a8fb8] flex items-center justify-center shadow mb-0.5';
-            avatar.innerHTML = '<span class="material-symbols-outlined text-white text-[14px]" style="font-variation-settings: \'FILL\' 1;">psychology</span>';
-            wrapper.appendChild(avatar);
-            wrapper.appendChild(bubble);
-        } else {
-            wrapper.appendChild(bubble);
-        }
-
-        // Animate in
-        wrapper.style.opacity = '0';
-        wrapper.style.transform = 'translateY(8px)';
-        messagesEl.appendChild(wrapper);
-        requestAnimationFrame(() => {
-            wrapper.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            wrapper.style.opacity = '1';
-            wrapper.style.transform = 'translateY(0)';
+        hubConnection.on('ReceiveMessage', function (msg) {
+            removeTypingIndicator();
+            appendMessage(msg.Role, msg.Content);
+            chatHistory.push({ Role: msg.Role, Content: msg.Content });
         });
 
-        scrollToBottom();
+        hubConnection.on('ReceiveError', function (err) {
+            removeTypingIndicator();
+            appendError('An error occurred. Please try again.');
+            console.error('[Daleel Chat] Hub error:', err);
+        });
+
+        hubConnection.onreconnecting(function () { isConnected = false; appendSystemNote('Reconnecting…'); });
+        hubConnection.onreconnected(function ()  { isConnected = true;  appendSystemNote('Reconnected.'); });
+        hubConnection.onclose(function ()        { isConnected = false; });
+
+        hubConnection.start()
+            .then(function ()  { isConnected = true; })
+            .catch(function (e) { isConnected = false; console.warn('[Daleel Chat] Hub unavailable – HTTP fallback active.', e); });
+    } else {
+        console.warn('[Daleel Chat] SignalR not found – HTTP fallback active.');
     }
 
-    function appendError(msg) {
-        const el = document.createElement('p');
-        el.className = 'text-center text-[11px] text-red-400 py-1';
-        el.textContent = msg;
-        messagesEl.appendChild(el);
-        scrollToBottom();
-        setSendState(false);
-    }
+    // ══════════════════════════════════════════════════════════════
+    //  WELCOME MESSAGE
+    // ══════════════════════════════════════════════════════════════
+    appendMessage('AI', 'Hello! I\'m **Daleel AI**, your strategic intelligence assistant. Ask me about global markets, trade corridors, supply chains, or economic outlooks. How can I help?');
 
-    function appendSystemNote(msg) {
-        const el = document.createElement('p');
-        el.className = 'text-center text-[10px] text-slate-400 py-1 italic';
-        el.textContent = msg;
-        messagesEl.appendChild(el);
-        scrollToBottom();
-    }
-
-    function showTypingIndicator() {
-        isTyping = true;
-        const el = document.createElement('div');
-        el.id = 'daleel-typing';
-        el.className = 'flex items-end gap-2 mb-3';
-        el.innerHTML = `
-            <div class="shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-[#00B2EC] to-[#0a8fb8] flex items-center justify-center shadow mb-0.5">
-                <span class="material-symbols-outlined text-white text-[14px]" style="font-variation-settings: 'FILL' 1;">psychology</span>
-            </div>
-            <div class="bg-slate-100 dark:bg-[#112240] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
-                <div class="flex gap-1 items-center h-4">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#00B2EC] animate-bounce" style="animation-delay:0ms"></span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#00B2EC] animate-bounce" style="animation-delay:150ms"></span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#00B2EC] animate-bounce" style="animation-delay:300ms"></span>
-                </div>
-            </div>`;
-        messagesEl.appendChild(el);
-        scrollToBottom();
-    }
-
-    function removeTypingIndicator() {
-        isTyping = false;
-        const el = document.getElementById('daleel-typing');
-        if (el) el.remove();
-        setSendState(false);
-    }
-
-    function hideChips() {
-        const chipsContainer = document.getElementById('daleel-chat-chips');
-        if (chipsContainer) {
-            chipsContainer.style.transition = 'opacity 0.3s';
-            chipsContainer.style.opacity = '0';
-            setTimeout(() => chipsContainer.style.display = 'none', 300);
-        }
-    }
-
-    function setSendState(disabled) {
-        if (sendBtn) sendBtn.disabled = disabled;
-    }
-
-    function scrollToBottom() {
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-
-    /**
-     * Minimal markdown formatting:
-     * - **bold** → <strong>
-     * - `code` → <code>
-     * - Newlines → <br>
-     */
-    function formatContent(text) {
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/`([^`]+)`/g, '<code class="bg-black/10 dark:bg-white/10 px-1 rounded text-[12px]">$1</code>')
-            .replace(/\n/g, '<br>');
-    }
-
-})();
+}());

@@ -12,16 +12,16 @@ namespace Daleel.BAL.Services
 {
     /// <summary>
     /// Calls the Google Gemini REST API to generate AI chat responses.
-    /// Automatically selects between gemini-2.5-pro (complex) and
-    /// gemini-2.5-flash (fast) based on the user's prompt characteristics.
+    /// Automatically selects between gemini-1.5-pro (complex) and
+    /// gemini-1.5-flash (fast) based on the user's prompt characteristics.
     /// </summary>
     public class GeminiService : IGeminiService
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
 
-        private const string FastModel = "gemini-2.5-flash";
-        private const string ProModel = "gemini-2.5-pro";
+        private const string FastModel = "gemini-1.5-flash";
+        private const string ProModel = "gemini-1.5-pro";
 
         private const string SystemInstruction =
             "You are 'Daleel AI', an expert strategic intelligence assistant for the Daleel Analytics platform. " +

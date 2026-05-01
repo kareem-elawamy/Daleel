@@ -381,7 +381,7 @@
             </div>
 
             <!-- Chat Input -->
-            <form id="daleel-chat-form" class="px-4 pb-4 shrink-0">
+            <form id="daleel-chat-form" class="px-4 pb-4 shrink-0" onsubmit="return false;">
                 <div class="relative flex items-center gap-2">
                     <input id="daleel-chat-input"
                         class="flex-1 bg-white dark:bg-[#112240] p-3.5 pe-14 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-[#00B2EC] outline-none text-brand-navy dark:text-white text-sm font-['Inter'] placeholder:text-slate-400"
@@ -967,9 +967,7 @@
 
 @section Scripts {
     <script src="~/js/hero-scrolly.js" asp-append-version="true"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"
-            integrity="sha512-7SRCYIJtR6F8ocwW7UxW6wGKqbSyqREDbfCORCbGLatU0iugfLdvRbc9cOmgIzP9I6xs7CsILRHEXLCcvH7NA=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/lib/signalr/dist/browser/signalr.min.js" asp-append-version="true"></script>
     <script src="~/js/gemini-chat.js" asp-append-version="true"></script>
-    <!-- <script src="~/js/gemini-voice.js" asp-append-version="true"></script> -->
+    <script src="~/js/gemini-voice.js" asp-append-version="true"></script>
 }
