@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using Daleel.BAL.Services.Interfaces;
 using Daleel.BAL.Services;
-using Daleel.Hubs;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +19,7 @@ builder.Services.AddHttpClient("Gemini", client =>
 });
 
 builder.Services.AddScoped<IGeminiService, GeminiService>();
-builder.Services.AddSignalR();
+
 
 var app = builder.Build();
 
@@ -65,7 +65,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-app.MapHub<ChatHub>("/chathub");
 
 
 app.Run();
